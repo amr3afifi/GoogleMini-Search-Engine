@@ -43,11 +43,14 @@ public class CrawlerThread extends Thread  implements Runnable {
             try {
                 document = Jsoup.connect(URL).get();
 
-                if (document instanceof HTMLDocument)
-                {
+
+
+//               if (document instanceof HTMLDocument)
+//                {
 
                    if(mycrawler.addToVisitedLinks(URL))
                    {
+                       System.out.println (Thread.currentThread().getName() + " Added a new link -> " +URL);
                        Elements metaTags= document.getElementsByTag("meta");
                        int robotDisallowCrawling=0;
                        for (Element metaTag:metaTags)
@@ -59,24 +62,25 @@ public class CrawlerThread extends Thread  implements Runnable {
 
                        }
 
-                       if(robotDisallowCrawling>0)
+                       if(robotDisallowCrawling==0)
                        {
                            Elements linksOnPage = document.select("a[href]");
 
                            //For each link found on page go to add in visited links hashset
                            for (Element page : linksOnPage) {
+
                                repeatForEachPage(page.attr("abs:href"));
                            }
                        }
                    }
-                }
+               // }
 
             }catch (IOException e) {
-                System.err.println("For '" + URL + "': " + e.getMessage());
+                System.err.println("For '" + URL + "': " + e.getMessage()+" or HTML");
             }
 
             mycrawler.notifyAll();
-            System.out.println (Thread.currentThread().getName() + " Added a new linK -> " +URL);
+
         }
     }
 }

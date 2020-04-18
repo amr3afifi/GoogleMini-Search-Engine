@@ -29,19 +29,26 @@ public class Crawler {
 
     public boolean isVisited(String URL)
     {
-        if (visitedLinks.contains(URL))
+        if (visitedLinks.contains(URL)) {
+
+            System.out.println("visited");
             return true;
-        else
-            return  false;
+        }
+        else {
+
+            System.out.println("not");
+            return false;
+        }
     }
 
     public boolean addToVisitedLinks(String URL)
     {
+
         if(!isVisited(URL))
         {
+
             visitedLinks.add(URL);
             URLsCount++;
-            System.out.println(URL);
             return true;
 
         }
