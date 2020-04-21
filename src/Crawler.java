@@ -1,22 +1,16 @@
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.DocumentType;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.w3c.dom.html.HTMLDocument;
 
-import javax.swing.text.html.HTML;
-import java.io.IOException;
 import java.util.HashSet;
 
 public class Crawler {
 
     private int URLsCount=0;
+    private Indexer myindexer;
     private final int maxCount=5000;
-    public HashSet<String> visitedLinks;
-    private Document document;
-    public Crawler() {
+    private HashSet<String> visitedLinks;
+    public Crawler(Indexer myindexer) {
         visitedLinks = new HashSet<String>();
+        this.myindexer = myindexer;
     }
 
     public int getCount () {
@@ -41,7 +35,7 @@ public class Crawler {
         }
     }
 
-    public boolean addToVisitedLinks(String URL)
+    public boolean addToVisitedLinks(Document document,String URL)
     {
 
         if(!isVisited(URL))
@@ -49,6 +43,7 @@ public class Crawler {
 
             visitedLinks.add(URL);
             URLsCount++;
+            myindexer.addDoc(document);
             return true;
 
         }
