@@ -43,7 +43,7 @@ public class Crawler {
 
             visitedLinks.add(URL);
             URLsCount++;
-            myindexer.addDoc(document);
+            myindexer.addDoc(document,URL);
             return true;
 
         }

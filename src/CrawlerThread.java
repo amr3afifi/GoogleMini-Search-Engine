@@ -69,6 +69,9 @@ public class CrawlerThread extends Thread  implements Runnable {
                            //For each link found on page go to add in visited links hashset
                            for (Element page : linksOnPage)
                            {
+//                               CrawlerThread crawlerThread=new CrawlerThread(mycrawler,page.attr("abs:href"));
+//                               Thread tcrawl =new Thread(crawlerThread);
+//                               tcrawl.start();
                                repeatForEachPage(page.attr("abs:href"));
                            }
                        }

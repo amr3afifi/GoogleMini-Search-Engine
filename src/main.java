@@ -6,13 +6,18 @@ public class main {
 
         String URL= "https://www.youtube.com/";
         Indexer myindexer=new Indexer();
-        Crawler mycrawler=new Crawler(myindexer);
+//        Crawler mycrawler=new Crawler(myindexer);
+//
+//
+//        CrawlerThread crawlerThread=new CrawlerThread(mycrawler,URL);
+//        Thread tcrawl1 =new Thread(crawlerThread,"tcrawl1");
+//
+//        tcrawl1.start();
+        myindexer.parseDoc();
 
 
-        CrawlerThread crawlerThread=new CrawlerThread(mycrawler,URL);
-        Thread tcrawl1 =new Thread(crawlerThread,"tcrawl1");
 
-        tcrawl1.start();
+
 
     }
 }

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DataExportManager">
@@ -26,21 +26,18 @@
     <loaded-nodes />
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
-    <connection id="1b88cbd3-1466-4bbb-9590-a2145e265ea0">
-      <console name="Connection" type="STANDARD" schema="" session="Main" />
+    <connection id="34dbfcdc-3021-48fe-9d10-d35530c80ec4">
+      <console name="SQLBench" type="STANDARD" schema="mysql" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
-    <connection id="1b88cbd3-1466-4bbb-9590-a2145e265ea0" />
+    <connection id="34dbfcdc-3021-48fe-9d10-d35530c80ec4" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
-  </component>
-  <component name="DBNavigator.Project.FileConnectionMappingManager">
-    <mapping file-url="file://$PROJECT_DIR$/src/Database.sql" connection-id="1b88cbd3-1466-4bbb-9590-a2145e265ea0" session-id="MAIN" current-schema="" />
   </component>
   <component name="DBNavigator.Project.MethodExecutionManager">
     <method-browser />
@@ -62,23 +59,23 @@
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
-      <connection id="1b88cbd3-1466-4bbb-9590-a2145e265ea0" active="true">
+      <connection id="34dbfcdc-3021-48fe-9d10-d35530c80ec4" active="true">
         <database>
-          <name value="Connection" />
+          <name value="SQLBench" />
           <description value="" />
           <database-type value="MYSQL" />
           <config-type value="BASIC" />
-          <database-version value="9999.0" />
+          <database-version value="8.0" />
           <driver-source value="EXTERNAL" />
-          <driver-library value="C:\Users\NEW\Documents\GitHub\APT_Project\lib\mysql-connector-java-8.0.19.jar" />
+          <driver-library value="C:\Users\NEW\Documents\GitHub\APT_Project\lib\mysql-connector-java-8.0.20\mysql-connector-java-8.0.20.jar" />
           <driver value="com.mysql.cj.jdbc.Driver" />
           <url-type value="DATABASE" />
           <host value="localhost" />
-          <port value="3306" />
-          <database value="google" />
+          <port value="3305" />
+          <database value="mysql" />
           <type value="USER_PASSWORD" />
-          <user value="google" />
-          <deprecated-pwd value="TThFcjl3b0FMQ3pEZlBlUQ==" />
+          <user value="root" />
+          <deprecated-pwd value="cm9vdA==" />
         </database>
         <properties>
           <auto-commit value="false" />
