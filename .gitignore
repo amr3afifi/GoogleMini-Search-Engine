@@ -1,6 +1,7 @@
 # Compiled class file
 *.class
 
+Web-Interface/fontawesome/
 # Log file
 *.log
 
