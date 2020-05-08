@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class CrawlerThread extends Thread  implements Runnable {
@@ -24,12 +25,15 @@ public class CrawlerThread extends Thread  implements Runnable {
     {
         while (true) {
 
+            try {
                 repeatForEachPage(URLraw);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void repeatForEachPage(String URLraw)
-    {
+    public void repeatForEachPage(String URLraw) throws MalformedURLException {
 //        try
 //        {
             URLraw=URLraw.toLowerCase();
@@ -41,6 +45,9 @@ public class CrawlerThread extends Thread  implements Runnable {
 //        {
 //            System.err.println( e.getMessage());
 //        }
+
+        //String outs=mycrawler.normalize(URLraw);
+        //System.out.println(outs);
 
 
         synchronized (mycrawler)
@@ -60,8 +67,9 @@ public class CrawlerThread extends Thread  implements Runnable {
 
                    if(!mycrawler.isVisited(URLraw))
                    {
+                       int outgoingLinks=0;
                        System.out.println (Thread.currentThread().getName() + " Added a new link -> " +URLraw);
-                        mycrawler.addToVisitedLinks(document,URLraw);
+                        mycrawler.addToVisitedLinks(URLraw);
                        if(!readRobotsText())
                        {
                            Elements linksOnPage = document.select("a[href]");
@@ -69,11 +77,10 @@ public class CrawlerThread extends Thread  implements Runnable {
                            //For each link found on page go to add in visited links hashset
                            for (Element page : linksOnPage)
                            {
-//                               CrawlerThread crawlerThread=new CrawlerThread(mycrawler,page.attr("abs:href"));
-//                               Thread tcrawl =new Thread(crawlerThread);
-//                               tcrawl.start();
                                repeatForEachPage(page.attr("abs:href"));
+                               outgoingLinks++;
                            }
+                        mycrawler.updateOutgoingLinks(URLraw,outgoingLinks);
                        }
                    }
             }catch (IOException e)
