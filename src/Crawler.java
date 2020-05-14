@@ -7,10 +7,33 @@ public class Crawler {
     private int URLsCount=0;
     private DbConnect db;
     private final int maxCount=5000;
+    private int threadCounter=0;
+    Vector<crawlSite> crawlerStartSeed;
+
+    public class crawlSite
+    {
+        public String url="";
+        public boolean threadEntered=false;
+    }
 
 
     public Crawler(DbConnect db) {
         this.db = db;
+        crawlerStartSeed=new Vector();
+
+        String[] websites = {
+                "https://www.youtube.com/", "https://www.facebook.com/", "https://www.twitter.com/", "https://www.google.com/", "https://www.linkedin.com/", "https://www.instagram.com/",
+                "https://www.amazon.com/", "https://www.ebay.com/", "https://www.gsmarena.com/", "https://www.stackoverflow.com/", "https://www.365scores.com/", "https://www.bodybuilding.com/",
+                 "https://www.bose.com/", "https://www.tesla.com/", "https://www.apple.com/", "https://www.wikipedia.org/", "https://www.nytimes.com/", "https://www.forbes.com/",
+                "https://www.netflix.com/"
+        };
+
+        for(int i=0;i<websites.length;i++)
+        {
+            crawlSite temp=new crawlSite();
+            temp.url=websites[i];
+            crawlerStartSeed.add(temp);
+        }
     }
 
     public int getCount () {
@@ -31,7 +54,7 @@ public class Crawler {
         }
         else {
 
-            System.out.println("not");
+            System.out.println("not visited");
             return false;
         }
     }
@@ -207,6 +230,25 @@ public class Crawler {
             return true;
 
 
+    }
+
+    public void addThread()
+    {
+        CrawlerThread crawlerThread=new CrawlerThread(this);
+        threadCounter++;
+        String threadname="thread"+Integer.toString(threadCounter);
+        Thread t=new Thread(crawlerThread,threadname);
+        System.out.println(t);
+        t.start();
+
+
+    }
+
+    public void addThread(int n)
+    {
+        System.out.println(this);
+        for (int i=0;i<n;i++)
+            addThread();
     }
 
 }

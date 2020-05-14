@@ -1,6 +1,5 @@
 import java.sql.*;
 
-
 public class DbConnect {
     private Connection con;
     private Statement st;
@@ -8,7 +7,7 @@ public class DbConnect {
     public DbConnect() {
 
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3305/google", "root", "root");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/google?serverTimezone=UTC", "root", "");
             st = con.createStatement();
             if (con != null) {
                 System.out.println("Successfully connected to MySQL database test");
@@ -44,7 +43,7 @@ public class DbConnect {
     {
         try{
             ResultSet rs;
-            if(id<0)
+            if(id<=0)
             {
                 System.out.println("Error id=-1");
                 return "";
@@ -89,7 +88,7 @@ public class DbConnect {
     {
         try{
             ResultSet rs;
-            if(word<0 || url<0)
+            if(word<=0 || url<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -107,6 +106,26 @@ public class DbConnect {
         {
             System.out.println(e);
             return -1;
+        }
+    }
+
+    public ResultSet getURLS_inCombined(int word)
+    {
+        ResultSet rs=null;
+        try{
+            if(word<=0)
+            {
+                System.out.println("Error id=-1");
+                return rs;
+            }
+            String query="SELECT * FROM google.combined WHERE word_id="+word+";";
+            return st.executeQuery(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return rs;
         }
     }
 
@@ -145,7 +164,7 @@ public class DbConnect {
     public int updateWordCount_inWord(int id)
     {
         try {
-            if(id<0)
+            if(id<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -165,7 +184,7 @@ public class DbConnect {
     {
         try {
             //insert if not available
-            if(word_id<0 || url_id<0)
+            if(word_id<=0 || url_id<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -184,7 +203,7 @@ public class DbConnect {
     public int updateCombined_numOfOccurences(int id)
     {
         try {
-            if(id<0)
+            if(id<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -223,7 +242,7 @@ public class DbConnect {
     public int updatePopularity_inURL(int id,double pop)
     {
         try {
-            if(id<0)
+            if(id<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -243,7 +262,7 @@ public class DbConnect {
     public int updateIngoing_inURL(int id)
     {
         try {
-            if(id<0)
+            if(id<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -263,7 +282,7 @@ public class DbConnect {
     public int updateOutgoing_inURL(int id,int num)
     {
         try {
-            if(id<0)
+            if(id<=0)
             {
                 System.out.println("Error id=-1");
                 return -1;
@@ -279,4 +298,54 @@ public class DbConnect {
             return -1;
         }
     }
+
+    public void emptyUrlsTable()
+    {
+        try {
+
+            String query = "DELETE FROM google.urls";
+            st.executeUpdate(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public void emptyWordsTable()
+    {
+        try {
+
+            String query = "DELETE FROM google.words";
+            st.executeUpdate(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public void emptyCombinedTable()
+    {
+        try {
+
+            String query = "DELETE FROM google.combined";
+            st.executeUpdate(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public void emptyDatabse()
+    {
+        emptyCombinedTable();
+        emptyUrlsTable();
+        emptyWordsTable();
+    }
+
 }

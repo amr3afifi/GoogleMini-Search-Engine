@@ -61,7 +61,6 @@ public Indexer (DbConnect db)
         try {
            String url=db.getURLByID_inURL(urlDbIndex);
            int url_id=urlDbIndex;
-
                String Alltext[];
                Alltext=getHTMLTags(url);
 
@@ -70,16 +69,17 @@ public Indexer (DbConnect db)
                // SPLIT TEXT TO WORDS:
                for (int i = 0; i < Alltext.length; i++) {
                    //check if tag exists:
+
                    if (Alltext[i].isEmpty())
                        continue;
 
                    result = Alltext[i].split("[()+;$*=#, ?.:!\"]+");
-
                    for (int j = 0; j < result.length; j++) {
 
-                       String LowerWord = result[j].toLowerCase();
-                       boolean stoppingCheck = isStoppingWord(LowerWord);
 
+                       String LowerWord = result[j].toLowerCase();
+
+                       boolean stoppingCheck = isStoppingWord(LowerWord);
                        if (stoppingCheck)
                            continue;
 
@@ -91,13 +91,15 @@ public Indexer (DbConnect db)
                        int word_id = db.findWord_inWord(StemOutput);
                        int combined_id=db.findBoth_inCombined(word_id,url_id);
 
-                       if(word_id<0)
+                       if(word_id<=0)
                        {word_id=db.addWord_toWord(StemOutput);}
                        else
                        {db.updateWordCount_inWord(word_id);}
 
-                       if(combined_id<0)
-                       { combined_id=db.addInCombined(url_id,word_id,i,j); }
+                       if(combined_id<=0)
+                       {
+                           combined_id=db.addInCombined(url_id,word_id,i,j);
+                       }
                        else
                        { db.updateCombined_numOfOccurences(combined_id); }
 

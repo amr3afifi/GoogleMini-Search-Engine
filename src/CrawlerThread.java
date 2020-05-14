@@ -12,13 +12,11 @@ import java.net.URL;
 public class CrawlerThread extends Thread  implements Runnable {
 
     private Crawler mycrawler;
-    private Document document;
-    public String URLraw;
+    public boolean isVisited;
     public String URLunshortened,URLnormalized,mainsite,extension;
 
-    public CrawlerThread (Crawler mycrawler,String URLraw) {
+    public CrawlerThread (Crawler mycrawler) {
         this.mycrawler = mycrawler;
-        this.URLraw = URLraw;
     }
 
     public void run()
@@ -26,89 +24,150 @@ public class CrawlerThread extends Thread  implements Runnable {
         while (true) {
 
             try {
-                repeatForEachPage(URLraw);
+
+                repeatForEachPage("");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void repeatForEachPage(String URLraw) throws MalformedURLException {
-//        try
-//        {
-            URLraw=URLraw.toLowerCase();
-//            URLunshortened= UrlCleaner.unshortenUrl(URLraw);
-//            URLnormalized= UrlCleaner.normalizeUrl(URLunshortened);
-//
-//        }
-//        catch (IOException e)
-//        {
-//            System.err.println( e.getMessage());
-//        }
 
-        //String outs=mycrawler.normalize(URLraw);
-        //System.out.println(outs);
+    public void repeatForEachPage(String link) throws MalformedURLException
+    {
+        String URLraw=new String();
+        boolean isVisited=false;
+        Document document=new Document(null);
+        String URLnormalized;
 
+        if(link==null || link=="") {
+            synchronized (mycrawler) {
+                if (mycrawler.getCount() >= mycrawler.getMaxCount()) {
+                    try {
+                        mycrawler.wait();
+                    } catch (InterruptedException e) {
+                    }
+                    ;
+                } else {
+                    int c = 0;
+                    for (int i = 0; i < mycrawler.crawlerStartSeed.size(); i++) {
+                        if (mycrawler.crawlerStartSeed.get(i).threadEntered == false) {
+                            URLraw = mycrawler.crawlerStartSeed.get(i).url;
+                            mycrawler.crawlerStartSeed.get(i).threadEntered = true;
+                            isVisited = mycrawler.isVisited(URLraw);
+                            URLraw = URLraw.toLowerCase();
+                            c++;
+                            break;
+                        } else c++;
 
-        synchronized (mycrawler)
-        {
-            while(mycrawler.getCount()>=mycrawler.getMaxCount())
-            {
-                try {
-                    mycrawler.wait();
-                } catch (InterruptedException e) {
-                    System.out.println (Thread.currentThread().getName() + " is awaken");
+                    }
+                    //kolohom false w yebda2 ye3eed ml awel
+                    if (c > 0 && c == mycrawler.crawlerStartSeed.size()) {
+                        System.out.println("Crawler: Finished seed and started allover again");
+                        for (int i = 0; i < mycrawler.crawlerStartSeed.size(); i++) {
+                            mycrawler.crawlerStartSeed.get(i).threadEntered = false;
+                        }
+                    }
+
                 }
             }
+        }else URLraw=link;
 
-            try
-            {
-                document = Jsoup.connect(URLraw).get();
-
-                   if(!mycrawler.isVisited(URLraw))
-                   {
-                       int outgoingLinks=0;
-                       System.out.println (Thread.currentThread().getName() + " Added a new link -> " +URLraw);
-                        mycrawler.addToVisitedLinks(URLraw);
-                       if(!readRobotsText())
-                       {
-                           Elements linksOnPage = document.select("a[href]");
-
-                           //For each link found on page go to add in visited links hashset
-                           for (Element page : linksOnPage)
-                           {
-                               repeatForEachPage(page.attr("abs:href"));
-                               outgoingLinks++;
-                           }
-                        mycrawler.updateOutgoingLinks(URLraw,outgoingLinks);
-                       }
-                   }
-            }catch (IOException e)
-            {
-                System.err.println("For '" + URLraw + "': " + e.getMessage()+" or HTML");
-            }
-
-            mycrawler.notifyAll();
+        URLraw=URLraw.toLowerCase();
+        synchronized (mycrawler) {
+            URLnormalized = mycrawler.normalize(URLraw);
         }
+
+        try
+        {
+            if(URLraw!=null) {
+                document = Jsoup.connect(URLnormalized).get();
+
+                if (!isVisited) {
+                    int outgoingLinks = 0;
+                    System.out.println(Thread.currentThread().getName() + " Added a new link -> " + URLnormalized);
+
+                    synchronized (mycrawler) {
+                        mycrawler.addToVisitedLinks(URLnormalized);
+                    }
+
+                    if (!readRobotsText(document,URLnormalized))
+                    {
+                        Elements linksOnPage = document.select("a[href]");
+
+                        //For each link found on page go to add in visited links hashset
+                        synchronized (mycrawler) {
+                            for (Element page : linksOnPage)
+                            {
+                                String el=page.attr("abs:href");
+                                if (!mycrawler.isVisited(el))
+                                {
+                                    mycrawler.addToVisitedLinks(el);
+                                }
+                                outgoingLinks++;
+                            }
+                            mycrawler.updateOutgoingLinks(URLnormalized, outgoingLinks);
+                        }
+                        for (Element page : linksOnPage)
+                        {
+                            repeatForEachPage(page.attr("abs:href"));
+                        }
+
+                    }
+
+                }
+            }
+        }catch (IOException e)
+        { System.err.println("For '" + URLnormalized + "': " + e.getMessage()+" or HTML"); }
+
+
     }
 
-    public void getSitePlusExtension()
+
+    public void getSitePlusExtension(String URLraw)
     {
         int com=-1;
-        com=URLraw.indexOf("com");
+        System.out.println(URLraw);
+        com=URLraw.indexOf(".com");
         if (com !=-1)
         {
-            mainsite= URLraw.substring(0 , com+3); //this will give abc
-            extension=URLraw.substring(com+4 , URLraw.length());
+            mainsite= URLraw.substring(0 , com+4); //this will give abc
+            if(URLraw.length()>com+4)
+                extension=URLraw.substring(com+5 , URLraw.length());
+            else
+                extension="";
+
+        }
+        com=-1;
+        com=URLraw.indexOf(".net");
+        if (com !=-1)
+        {
+            mainsite= URLraw.substring(0 , com+4); //this will give abc
+            if(URLraw.length()>com+4)
+                extension=URLraw.substring(com+5 , URLraw.length());
+            else
+                extension="";
+
+        }
+        com=-1;
+        com=URLraw.indexOf(".org");
+        if (com !=-1)
+        {
+            mainsite= URLraw.substring(0 , com+4); //this will give abc
+            if(URLraw.length()>com+4)
+                extension=URLraw.substring(com+5 , URLraw.length());
+            else
+                extension="";
+
         }
     }
 
-    public boolean readRobotsText()
+    public boolean readRobotsText(Document document,String URLraw)
     {
         int robotDisallowCrawling=0;
 
         //Robot txt file
-        getSitePlusExtension();
+        getSitePlusExtension(URLraw);
         try(BufferedReader in = new BufferedReader(
                 new InputStreamReader(new URL(mainsite+"/robots.txt").openStream())))
         {
