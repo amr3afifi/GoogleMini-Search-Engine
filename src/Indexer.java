@@ -15,12 +15,12 @@ public Indexer (DbConnect db)
 {
     this.db=db;
     stemmer=new Stemmer();
-    this.urlDbIndex=1;
+    this.urlDbIndex=db.getfirstURL_inURL();
 }
 
     public void run()
     {
-        while(urlDbIndex<5000)
+        while(true)
         {
             parseDoc();
         }
@@ -31,8 +31,9 @@ public Indexer (DbConnect db)
         String Alltext[]=new String[]{};
         try{
         if(!url.isEmpty()) {
+
             Document doc = Jsoup.connect(url).get();
-            //db.addURL_toURL(url, 0.0);
+
             //to get text in html code
             String title = doc.title();
             String h1 = doc.getElementsByTag("h1").text();
@@ -47,7 +48,7 @@ public Indexer (DbConnect db)
             String td = doc.getElementsByTag("td").text();
             String span = doc.getElementsByTag("span").text();
             String div = doc.getElementsByTag("div").text();
-
+            System.out.println(h1);System.out.println(h2);System.out.println(div);
             // Place all test in array:
              Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, li, th, td};
 
@@ -60,6 +61,7 @@ public Indexer (DbConnect db)
     public void parseDoc() {
         try {
            String url=db.getURLByID_inURL(urlDbIndex);
+
            int url_id=urlDbIndex;
                String Alltext[];
                Alltext=getHTMLTags(url);
@@ -76,9 +78,8 @@ public Indexer (DbConnect db)
                    result = Alltext[i].split("[()+;$*=#, ?.:!\"]+");
                    for (int j = 0; j < result.length; j++) {
 
-
                        String LowerWord = result[j].toLowerCase();
-
+                       System.out.println(LowerWord);
                        boolean stoppingCheck = isStoppingWord(LowerWord);
                        if (stoppingCheck)
                            continue;
@@ -87,10 +88,9 @@ public Indexer (DbConnect db)
                        stemmer.add(stemArray, LowerWord.length());
                        stemmer.stem();
                        String StemOutput = stemmer.toString();
-
+                       System.out.println(StemOutput);
                        int word_id = db.findWord_inWord(StemOutput);
                        int combined_id=db.findBoth_inCombined(word_id,url_id);
-
                        if(word_id<=0)
                        {word_id=db.addWord_toWord(StemOutput);}
                        else

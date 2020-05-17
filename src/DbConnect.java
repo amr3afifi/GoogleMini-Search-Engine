@@ -26,6 +26,7 @@ public class DbConnect {
             String query="SELECT id FROM google.urls WHERE url='"+url+"';";
             rs=st.executeQuery(query);
             int value=0;
+            //if (rs==null)return -1;
             while(rs.next())
             {
                 value=rs.getInt("id");
@@ -50,6 +51,7 @@ public class DbConnect {
             }
             String query="SELECT url FROM google.urls WHERE id="+id+";";
             rs=st.executeQuery(query);
+            if(rs==null)return "";
             String value="";
             while(rs.next())
             {
@@ -64,13 +66,38 @@ public class DbConnect {
         }
     }
 
+    public int getfirstURL_inURL()
+    {
+        int value=-1;
+        try{
+
+            ResultSet rs;
+            String query="SELECT `id` FROM `urls` LIMIT 1;";
+            rs=st.executeQuery(query);
+            if(rs==null) return value;
+            while(rs.next())
+            {
+                value=rs.getInt("id");
+            }
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+        return value;
+    }
+
     public int findWord_inWord(String word)
     {
         try{
             ResultSet rs;
             String query="SELECT id FROM google.words WHERE word='"+word+"';";
+
             rs=st.executeQuery(query);
+
             int value=0;
+            //if (rs==null)return -1;
             while(rs.next())
             {
                 value=rs.getInt("id");
@@ -96,6 +123,7 @@ public class DbConnect {
             String query="SELECT id FROM google.combined WHERE word_id="+word+" and url_id="+url+";";
             rs=st.executeQuery(query);
             int value=0;
+           // if (rs==null)return -1;
             while(rs.next())
             {
                 value=rs.getInt("id");

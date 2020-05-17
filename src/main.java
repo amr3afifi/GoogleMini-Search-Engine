@@ -8,7 +8,9 @@ public class main {
         DbConnect db=new DbConnect();
         Indexer indexer=new Indexer(db);
         Crawler crawler=new Crawler(db);
-        //crawler.addThread(3);
+        //db.emptyDatabse();
+       // crawler.addThread(3);
+        indexer.run();
 
 //        int h1=db.addWord_toWord("hello");
 //        int h2=db.addWord_toWord("hello2");
@@ -22,11 +24,8 @@ public class main {
 //        db.addInCombined(u3,h2,0,1);
 //        db.addInCombined(u3,h1,0,1);
 
-//        db.emptyDatabse();
-
-//        QueryProcessor queryProcessor=new QueryProcessor(db);
-//        queryProcessor.searchBox="hello";
-//        queryProcessor.searchDatabase();
+//        QueryProcessor queryProcessor=new QueryProcessor();
+//        queryProcessor.searchDatabase("hello");
 //        queryProcessor.printVector();
 
         //indexer.parseDoc();

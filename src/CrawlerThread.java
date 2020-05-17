@@ -78,9 +78,21 @@ public class CrawlerThread extends Thread  implements Runnable {
             URLnormalized = mycrawler.normalize(URLraw);
         }
 
+
         try
         {
-            if(URLraw!=null) {
+            if(URLnormalized!=null) {
+                int firstDot=-1;
+                firstDot=URLnormalized.indexOf(".");
+                int lastDot=firstDot;
+                lastDot=URLnormalized.lastIndexOf(".");
+                if (firstDot !=-1 && lastDot!=firstDot)
+                {
+                    URLnormalized=URLnormalized.substring(firstDot+1 , URLnormalized.length());
+                    URLnormalized="https://www."+URLnormalized;
+                }
+
+                System.out.println(URLnormalized);
                 document = Jsoup.connect(URLnormalized).get();
 
                 if (!isVisited) {
@@ -102,6 +114,16 @@ public class CrawlerThread extends Thread  implements Runnable {
                                 String el=page.attr("abs:href");
                                 if (!mycrawler.isVisited(el))
                                 {
+                                    el = mycrawler.normalize(el);
+                                    firstDot=-1;
+                                    firstDot=el.indexOf(".");
+                                    lastDot=firstDot;
+                                    lastDot=el.lastIndexOf(".");
+                                    if (firstDot !=-1 && lastDot!=firstDot)
+                                    {
+                                        el=el.substring(firstDot+1 , el.length());
+                                        el="https://www."+el;
+                                    }
                                     mycrawler.addToVisitedLinks(el);
                                 }
                                 outgoingLinks++;
