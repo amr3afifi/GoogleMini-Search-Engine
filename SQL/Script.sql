@@ -36,6 +36,21 @@ CREATE TABLE `google`.`words` (
 
 
 --
+-- Table structure for table `images`
+--
+DROP TABLE IF EXISTS `images`;
+CREATE TABLE `google`.`words` (
+ `id` INT NOT NULL AUTO_INCREMENT ,
+ `url_id` INT NOT NULL ,
+ `src` TEXT NOT NULL,
+ `alt` TEXT ,
+ PRIMARY KEY (`id`),
+ KEY `url_id` (`url_id`),
+ ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
+-- --------------------------------------------------------
+
+
+--
 -- Table structure for table `combined`
 --
 DROP TABLE IF EXISTS `combined`;
@@ -61,6 +76,9 @@ ALTER TABLE `combined`
   
 ALTER TABLE `combined`
   ADD CONSTRAINT `fk_combined_url` FOREIGN KEY (`url_id`) REFERENCES `urls` (`id`);
+
+ALTER TABLE `images`
+  ADD CONSTRAINT `fk_combined_urlimage` FOREIGN KEY (`url_id`) REFERENCES `urls` (`id`);
 
 SET FOREIGN_KEY_CHECKS=1;
 

@@ -88,6 +88,7 @@ public class DbConnect {
         return value;
     }
 
+
     public int findWord_inWord(String word)
     {
         try{
@@ -177,10 +178,26 @@ public class DbConnect {
     {
         try {
             //insert if not available
-                String query = "INSERT INTO google.words (word,count,num_of_docs_occurred) VALUES ('"+word+"',"+1+","+1+");";
+                String query = "INSERT INTO google.words (word,count,num_of_docs_occurred) VALUES ('"+word+"',"+0+","+0+");";
                 st.executeUpdate(query);
 
             return findWord_inWord(word);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int addImage_toImage(int url_id,String src ,String alt)
+    {
+        try {
+            //insert if not available
+            String query = "INSERT INTO google.images (url_id,src,alt) VALUES ("+url_id+",'"+src+"','"+alt+"');";
+            st.executeUpdate(query);
+
+            return 1;
         }
         catch (Exception e)
         {
@@ -341,6 +358,20 @@ public class DbConnect {
         }
     }
 
+    public void emptyImagesTable()
+    {
+        try {
+
+            String query = "DELETE FROM google.images";
+            st.executeUpdate(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
     public void emptyWordsTable()
     {
         try {
@@ -371,6 +402,7 @@ public class DbConnect {
 
     public void emptyDatabse()
     {
+        emptyImagesTable();
         emptyCombinedTable();
         emptyUrlsTable();
         emptyWordsTable();

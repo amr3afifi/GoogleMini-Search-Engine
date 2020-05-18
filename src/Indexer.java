@@ -48,9 +48,8 @@ public Indexer (DbConnect db)
             String td = doc.getElementsByTag("td").text();
             String span = doc.getElementsByTag("span").text();
             String div = doc.getElementsByTag("div").text();
-            System.out.println(h1);System.out.println(h2);System.out.println(div);
             // Place all test in array:
-             Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, li, th, td};
+             Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, li, th, td,span,div};
 
         }} catch (Exception e) {
             System.out.println(e);
@@ -63,6 +62,7 @@ public Indexer (DbConnect db)
            String url=db.getURLByID_inURL(urlDbIndex);
 
            int url_id=urlDbIndex;
+           if(url_id<=0)System.exit(1);
                String Alltext[];
                Alltext=getHTMLTags(url);
 
@@ -80,9 +80,13 @@ public Indexer (DbConnect db)
 
                        String LowerWord = result[j].toLowerCase();
                        System.out.println(LowerWord);
+                       boolean arabicWord = isArabicWord(LowerWord);
+                       if(arabicWord)
+                           continue;
                        boolean stoppingCheck = isStoppingWord(LowerWord);
                        if (stoppingCheck)
                            continue;
+
 
                        char[] stemArray = LowerWord.toCharArray();
                        stemmer.add(stemArray, LowerWord.length());
@@ -124,12 +128,20 @@ public Indexer (DbConnect db)
         for(int i=0;i<stoppingWordArray.length;i++)
         {
             if(stoppingWordArray[i]==input)
-                found++;
+            {found++;break;}
         }
         if(found>0)
             return true;
         else
             return false;
+    }
+
+    public boolean isArabicWord(String input)
+    {
+        if(input.matches("^\\s*([0-9a-zA-Z]*)\\s*$"))
+            return false;
+        else
+            return true;
     }
 
 

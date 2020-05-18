@@ -72,6 +72,17 @@ public class Crawler {
         return false;
     }
 
+    public boolean addImage(String url, String src,String alt)
+    {
+        int id=db.findURL_inURL(url);
+        if(id>0)
+        {
+            db.addImage_toImage(id,src,alt);
+            return true;
+        }
+        return false;
+    }
+
     public String normalize( String taintedURL) throws MalformedURLException
     {
         final URL url;
@@ -246,7 +257,6 @@ public class Crawler {
 
     public void addThread(int n)
     {
-        System.out.println(this);
         for (int i=0;i<n;i++)
             addThread();
     }

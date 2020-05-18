@@ -12,9 +12,11 @@ public class QueryProcessor extends HttpServlet {
     @Override
     public void init() throws ServletException {
         this.stemmer=new Stemmer();
+        this.db=new DbConnect();
     }
     public QueryProcessor(){
         this.db=new DbConnect();
+        this.stemmer=new Stemmer();
     }
 
     public class Result
@@ -42,6 +44,11 @@ public class QueryProcessor extends HttpServlet {
         int word_id=0;
         for(int i=0;i<words.length;i++)
         {
+            char[] stemArray = words[i].toCharArray();
+            stemmer.add(stemArray, words[i].length());
+            stemmer.stem();
+            words[i] = stemmer.toString();
+
             System.out.println(words[i]);
             word_id=db.findWord_inWord(words[i]);
             if(word_id<=0)continue;
@@ -60,7 +67,6 @@ public class QueryProcessor extends HttpServlet {
                     result.i = rs.getInt("importance");
                     result.j = rs.getInt("importance_index");
                     result.num = rs.getInt("num_of_occurrences");
-                    System.out.println("Id= "+result.id+" urlID= "+result.url_id+" wordID= "+result.word_id);
                     results.add(result);
                 }
             }catch (SQLException ex)
@@ -76,7 +82,7 @@ public class QueryProcessor extends HttpServlet {
     {
         for(int i=0;i<results.size();i++)
         {
-            System.out.println("Id= "+results.get(i).id+" urlID= "+results.get(i).url_id+" wordID= "+results.get(i).word_id);
+            System.out.println("Id="+results.get(i).id+" urlID="+results.get(i).url_id+" wordID="+results.get(i).word_id +" I="+results.get(i).i+" J="+results.get(i).j+" Num="+results.get(i).num);
         }
     }
 
@@ -170,17 +176,36 @@ public class QueryProcessor extends HttpServlet {
 
     public void ranker()
     {
+        sortPosition();
         sortCount();
         sortImportance();
-        sortPosition();
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String searchBox = request.getParameter("searchBox");
-        searchBox="my name";
         searchDatabase(searchBox);
         ranker();
-        String message = "Your name is  " + searchBox ;
+        String resultsString = "";
+        for (int i=0;i<results.size();i++)
+        {
+            int url_id=results.get(i).url_id;
+            String url=db.getURLByID_inURL(url_id);
+            int indexWWW=-1;int indexCOM=-1;
+            indexWWW=url.indexOf("www.");
+            indexCOM=url.lastIndexOf(".");
+            String mainsite=url;
+            if(indexCOM>indexWWW)
+                mainsite=url.substring(indexWWW+1,indexCOM);
+
+            resultsString+="<div class=\"component\">\n" +
+                "            <h3> "+url+" </h3>\n" +
+                "            <h1> "+mainsite+" </h1>\n" +
+                "            <h2> Put info here ... </h2>\n" +
+                "            </div>\n" ;
+
+        }
+
+
         response.setContentType("text/html");
         String page = "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
@@ -354,42 +379,28 @@ public class QueryProcessor extends HttpServlet {
                 "<body>\n" +
                 "    <img alt=\"Google image\" class=\"img2\"\n" +
                 "            src=\"./google.png\">\n" +
+                "<form action=\"SearchRequest\" method=\"POST\" id=\"SearchRequest\">"+
                 "    <div class=\"searchbox2\">\n" +
-                "           <input name=\"searchBox\" class=\"input2\" type=\"text\">\n" +
-                "\n" +
-                "           <i class=\"fas fa-microphone\"></i>   \n" +
-                "           <i class=\"fas fa-search\"></i>  \n" +
-                "        </div>\n" +
+
+                "           <input name=\"searchBox\" value="+searchBox+" id=\"searchBox\" class=\"input2\" type=\"text\">\n"
+        +" <img src=\"./search.png\" style=\"width:20px;margin-top:2px\" alt=\"search image\" >"
+        +" <img id=\"voiceSearch\" src=\"./mic.png\" style=\"width:18px;\" alt=\"mic image\" >"+
+
+                "        </div>\n"
+                +"<button type=\"submit\" value=\"Submit\">Search</button>"
+                +"</form>"
+                +"<div id=\"message2\"></div>"+
+                "<div class=\"toolbar\">"
+           +" <h2>Text   </h2>"
+        +"  <h2> Images </h2>"
+        +" </div>"+
                 "        <div class=\"result\">\n" +
                 "            <div class=\"component\">\n" +
                 "            <h3> www.google.com </h3>\n" +
                 "            <h1> Google </h1>\n" +
                 "            <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>\n" +
                 "            </div>\n" +
-                "\n" +
-                "            <div class=\"component\">\n" +
-                "                <h3> www.google.com </h3>\n" +
-                "                <h1> Google </h1>\n" +
-                "                <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>\n" +
-                "            </div>\n" +
-                "\n" +
-                "            <div class=\"component\">\n" +
-                "                <h3> www.google.com </h3>\n" +
-                "                <h1> Google </h1>\n" +
-                "                <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>\n" +
-                "            </div>\n" +
-                "\n" +
-                "            <div class=\"component\">\n" +
-                "                <h3> www.google.com </h3>\n" +
-                "                <h1> Google </h1>\n" +
-                "                <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>\n" +
-                "            </div>\n" +
-                "\n" +
-                "            <div class=\"component\">\n" +
-                "                <h3> www.google.com </h3>\n" +
-                "                <h1> Google </h1>\n" +
-                "                <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>\n" +
-                "            </div>\n" +
+                "\n" +resultsString+
                 "        </div>\n" +
                 "    <div class=\"footer2\">\n" +
                 "\n" +
@@ -424,6 +435,53 @@ public class QueryProcessor extends HttpServlet {
                 "            </div>\n" +
                 "        </div>\n" +
                 "    </div>\n" +
+                "<script>\n" +
+                "        var message = document.querySelector('#message2');\n" +
+                "\n" +
+                "        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;\n" +
+                "        var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;\n" +
+                "\n" +
+                "        var grammar = '#JSGF V1.0;'\n" +
+                "\n" +
+                "        var recognition = new SpeechRecognition();\n" +
+                "        var speechRecognitionList = new SpeechGrammarList();\n" +
+                "        speechRecognitionList.addFromString(grammar, 1);\n" +
+                "        recognition.grammars = speechRecognitionList;\n" +
+                "        recognition.lang = 'en-US';\n" +
+                "        recognition.interimResults = false;\n" +
+                "\n" +
+                "        recognition.onresult = function(event) {\n" +
+                "            var last = event.results.length - 1;\n" +
+                "            var command = event.results[last][0].transcript;\n" +
+                "\n" +
+                "            document.getElementById(\"searchBox\").value = command.toLowerCase();\n" +
+                "        };\n" +
+                "\n" +
+                "        recognition.onspeechend = function() {\n" +
+                "            recognition.stop();\n" +
+                "            document.getElementById(\"voiceSearch\").src = \"./mic.png\";\n" +
+                "        };\n" +
+                "\n" +
+                "        recognition.onerror = function(event) {\n" +
+                "            message.textContent = 'Error occurred in recognition: ' + event.error;\n" +
+                "            document.getElementById(\"voiceSearch\").src = \"./mic.png\";\n" +
+                "        }        \n" +
+                "\n" +
+                "        document.querySelector('#voiceSearch').addEventListener('click', function(){\n" +
+                "            document.getElementById(\"searchBox\").value = \"\";\n" +
+                "            message.textContent = '';\n" +
+                "            recognition.start();\n" +
+                "            document.getElementById(\"voiceSearch\").src = \"./dots.png\";\n" +
+                "\n" +
+                "        });\n" +
+                "\n" +
+                "        document.querySelector('#searchBox').addEventListener('click', function(){\n" +
+                "            message.textContent = '';\n" +
+                "            \n" +
+                "        });\n" +
+                "\n" +
+                "\n" +
+                "    </script>"+
                 "</body>\n" +
                 "\n" +
                 "</html>";

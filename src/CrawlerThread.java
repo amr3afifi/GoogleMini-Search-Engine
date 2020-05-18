@@ -12,8 +12,7 @@ import java.net.URL;
 public class CrawlerThread extends Thread  implements Runnable {
 
     private Crawler mycrawler;
-    public boolean isVisited;
-    public String URLunshortened,URLnormalized,mainsite,extension;
+    public String mainsite,extension;
 
     public CrawlerThread (Crawler mycrawler) {
         this.mycrawler = mycrawler;
@@ -50,8 +49,10 @@ public class CrawlerThread extends Thread  implements Runnable {
                     ;
                 } else {
                     int c = 0;
-                    for (int i = 0; i < mycrawler.crawlerStartSeed.size(); i++) {
-                        if (mycrawler.crawlerStartSeed.get(i).threadEntered == false) {
+                    for (int i = 0; i < mycrawler.crawlerStartSeed.size(); i++)
+                    {
+                        if (mycrawler.crawlerStartSeed.get(i).threadEntered == false)
+                        {
                             URLraw = mycrawler.crawlerStartSeed.get(i).url;
                             mycrawler.crawlerStartSeed.get(i).threadEntered = true;
                             isVisited = mycrawler.isVisited(URLraw);
@@ -61,8 +62,9 @@ public class CrawlerThread extends Thread  implements Runnable {
                         } else c++;
 
                     }
-                    //kolohom false w yebda2 ye3eed ml awel
-                    if (c > 0 && c == mycrawler.crawlerStartSeed.size()) {
+                    //kolohom true w yebda2 ye3eed ml awel
+                    if (c >= mycrawler.crawlerStartSeed.size())
+                    {
                         System.out.println("Crawler: Finished seed and started allover again");
                         for (int i = 0; i < mycrawler.crawlerStartSeed.size(); i++) {
                             mycrawler.crawlerStartSeed.get(i).threadEntered = false;
@@ -92,20 +94,22 @@ public class CrawlerThread extends Thread  implements Runnable {
                     URLnormalized="https://www."+URLnormalized;
                 }
 
-                System.out.println(URLnormalized);
+                URLnormalized=URLnormalized.replace("/ar/","/");
                 document = Jsoup.connect(URLnormalized).get();
+
 
                 if (!isVisited) {
                     int outgoingLinks = 0;
-                    System.out.println(Thread.currentThread().getName() + " Added a new link -> " + URLnormalized);
 
                     synchronized (mycrawler) {
-                        mycrawler.addToVisitedLinks(URLnormalized);
+                        if(mycrawler.addToVisitedLinks(URLnormalized));
+                            System.out.println(Thread.currentThread().getName() + " Added a new link -> " + URLnormalized);
                     }
 
                     if (!readRobotsText(document,URLnormalized))
                     {
                         Elements linksOnPage = document.select("a[href]");
+                        Elements imagesOnPage = document.select("img");
 
                         //For each link found on page go to add in visited links hashset
                         synchronized (mycrawler) {
@@ -114,6 +118,7 @@ public class CrawlerThread extends Thread  implements Runnable {
                                 String el=page.attr("abs:href");
                                 if (!mycrawler.isVisited(el))
                                 {
+
                                     el = mycrawler.normalize(el);
                                     firstDot=-1;
                                     firstDot=el.indexOf(".");
@@ -124,10 +129,25 @@ public class CrawlerThread extends Thread  implements Runnable {
                                         el=el.substring(firstDot+1 , el.length());
                                         el="https://www."+el;
                                     }
+                                    el=el.replace("/ar/","/");
                                     mycrawler.addToVisitedLinks(el);
                                 }
                                 outgoingLinks++;
                             }
+                            for (Element img : imagesOnPage)
+                            {
+                                String src=img.attr("abs:src");
+                                String alt=img.attr("abs:alt");
+                                int last=alt.lastIndexOf("/");
+
+                                if(alt.length()>last)
+                                    alt=alt.substring(last+1,alt.length());
+                                else
+                                    alt=img.attr("abs:alt");
+
+                                mycrawler.addImage(URLnormalized,src,alt);
+                            }
+
                             mycrawler.updateOutgoingLinks(URLnormalized, outgoingLinks);
                         }
                         for (Element page : linksOnPage)
@@ -149,7 +169,6 @@ public class CrawlerThread extends Thread  implements Runnable {
     public void getSitePlusExtension(String URLraw)
     {
         int com=-1;
-        System.out.println(URLraw);
         com=URLraw.indexOf(".com");
         if (com !=-1)
         {
@@ -184,6 +203,14 @@ public class CrawlerThread extends Thread  implements Runnable {
         }
     }
 
+    public boolean isArabicWord(String input)
+    {
+        if(input.matches("^\\s*([0-9a-zA-Z]*)\\s*$"))
+            return false;
+        else
+            return true;
+    }
+
     public boolean readRobotsText(Document document,String URLraw)
     {
         int robotDisallowCrawling=0;
@@ -193,11 +220,26 @@ public class CrawlerThread extends Thread  implements Runnable {
         try(BufferedReader in = new BufferedReader(
                 new InputStreamReader(new URL(mainsite+"/robots.txt").openStream())))
         {
-            String line = null;
+            String line = null;boolean enter=false;
+
             while((line = in.readLine()) != null)
             {
-                if(line=="Disallow: /"+extension)
-                    robotDisallowCrawling++;
+                if(line=="User-agent: *")
+                    enter=true;
+                else
+                {
+                    if(line.contains("User-agent: "))
+                        enter=false;
+                }
+
+                if(enter==true)
+                {
+                    if (line == "Disallow: /" + extension || line == "Disallow: /")
+                    {
+                        robotDisallowCrawling++;
+                        break;
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -210,7 +252,7 @@ public class CrawlerThread extends Thread  implements Runnable {
         {
             String content = metaTag.attr("content");
             if(content.contains("NOFOLLOW") || content.contains("nofollow"))
-                robotDisallowCrawling++;
+            { robotDisallowCrawling++;break;}
         }
 
         if(robotDisallowCrawling>0)

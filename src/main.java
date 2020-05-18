@@ -4,32 +4,33 @@ public class main {
 
     public static void main(String[] args)
     {
-        System.out.println("Hello");
+        System.out.println("بسم الله الرحمن الرحيم, ادخل برجلك اليمين");
         DbConnect db=new DbConnect();
         Indexer indexer=new Indexer(db);
         Crawler crawler=new Crawler(db);
+
+    //Steps to run 1.empty database .. 2. run crawler & comment others and close program .. 3. run indexer & comment others and close program then use the web interface
+
+    //To empty the Database     --make sure to comment the next line when running the indexer
         //db.emptyDatabse();
-       // crawler.addThread(3);
-        indexer.run();
 
-//        int h1=db.addWord_toWord("hello");
-//        int h2=db.addWord_toWord("hello2");
-//        int h3=db.addWord_toWord("hello3");
-//        int u1=db.addURL_toURL("www.hello.com");
-//        int u2=db.addURL_toURL("www.hello.com");
-//        int u3=db.addURL_toURL("www.hello.com");
-//        db.addInCombined(u1,h1,0,1);
-//        db.addInCombined(u2,h2,0,1);
-//        db.addInCombined(u3,h3,0,1);
-//        db.addInCombined(u3,h2,0,1);
-//        db.addInCombined(u3,h1,0,1);
+    //1. To run the crawler
+    //Add N number of threads to the crawler and run them automatically
+        //crawler.addThread(3);
 
-//        QueryProcessor queryProcessor=new QueryProcessor();
-//        queryProcessor.searchDatabase("hello");
-//        queryProcessor.printVector();
+    //2.To run the indexer
+        //indexer.run();
 
-        //indexer.parseDoc();
 
+        QueryProcessor queryProcessor=new QueryProcessor();
+        queryProcessor.searchDatabase("drop box");
+        queryProcessor.ranker();
+        queryProcessor.printVector();
+
+        while (true)
+        {
+
+        }
 
 
     }
