@@ -12,22 +12,25 @@ public class main {
     //Steps to run 1.empty database .. 2. run crawler & comment others and close program .. 3. run indexer & comment others and close program then use the web interface
 
     //To empty the Database     --make sure to comment the next line when running the indexer
-        db.emptyDatabase();
+        //db.emptyDatabse();
 
     //1. To run the crawler
     //Add N number of threads to the crawler and run them automatically
-        crawler.addThread(1);
+        //crawler.addThread(3);
 
     //2.To run the indexer
         //indexer.run();
 
 
-//        QueryProcessor queryProcessor=new QueryProcessor();
-//        queryProcessor.searchDatabase("drop box");
-//        queryProcessor.ranker();
-//        queryProcessor.printVector();
+        QueryProcessor queryProcessor=new QueryProcessor();
+        queryProcessor.searchDatabase("drop box");
+        queryProcessor.ranker();
+        queryProcessor.printVector();
 
+        while (true)
+        {
 
+        }
 
 
     }
