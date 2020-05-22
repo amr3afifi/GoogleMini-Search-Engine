@@ -182,6 +182,7 @@ public class QueryProcessor extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         String searchBox = request.getParameter("searchBox");
         searchDatabase(searchBox);
         ranker();
@@ -204,7 +205,6 @@ public class QueryProcessor extends HttpServlet {
                 "            </div>\n" ;
 
         }
-
 
         response.setContentType("text/html");
         String page = "<!DOCTYPE html>\n" +
@@ -387,14 +387,16 @@ public class QueryProcessor extends HttpServlet {
         +" <img id=\"voiceSearch\" src=\"./mic.png\" style=\"width:18px;\" alt=\"mic image\" >"+
 
                 "        </div>\n"
-                +"<button type=\"submit\" value=\"Submit\">Search</button>"
-                +"</form>"
+
                 +"<div id=\"message2\"></div>"+
                 "<div class=\"toolbar\">"
-           +" <h2>Text   </h2>"
-        +"  <h2> Images </h2>"
-        +" </div>"+
-                "        <div class=\"result\">\n" +
+                +" <h2>Text   </h2>"
+                +"  <h2> Images </h2>"
+                +" </div>"
+                +"<button style=\"margin-left: 320px;\" " +
+                "type=\"submit\" value=\"Submit\">Search</button>"
+                +"</form>"
+                +"        <div class=\"result\">\n" +
                 "            <div class=\"component\">\n" +
                 "            <h3> www.google.com </h3>\n" +
                 "            <h1> Google </h1>\n" +
