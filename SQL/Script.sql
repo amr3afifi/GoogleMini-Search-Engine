@@ -12,10 +12,13 @@ USE `google`;
 DROP TABLE IF EXISTS `urls`;
 CREATE TABLE `google`.`urls` (
  `id` INT NOT NULL AUTO_INCREMENT ,
- `url` VARCHAR(250) NOT NULL ,
+ `url` TEXT NOT NULL ,
  `popularity` DOUBLE NULL DEFAULT '0.0' ,
  `out_going` INT NOT NULL DEFAULT '0' ,
  `in_going` INT NOT NULL DEFAULT '0' ,
+ `enter` BOOLEAN NOT NULL DEFAULT FALSE,
+ `resume` BOOLEAN NOT NULL DEFAULT FALSE,
+ `max_count` INT NOT NULL DEFAULT '0' ,
  PRIMARY KEY (`id`)
  ) ENGINE = InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
@@ -67,6 +70,19 @@ CREATE TABLE `google`.`combined` (
  ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
 -- --------------------------------------------------------\
 
+-- --------------------------------------------------------
+--
+-- Table structure for table `queries`
+--
+DROP TABLE IF EXISTS `queries`;
+CREATE TABLE `google`.`queries` (
+ `id` INT NOT NULL AUTO_INCREMENT ,
+ `text` TEXT NOT NULL ,
+ `location` VARCHAR(100) NOT NULL ,
+ `count` INT DEFAULT 1 ,
+ PRIMARY KEY (`id`)
+ ) ENGINE = InnoDB AUTO_INCREMENT=1;
+-- --------------------------------------------------------
 
 --
 -- Constraints for table `combined`

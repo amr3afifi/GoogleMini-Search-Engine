@@ -9,9 +9,12 @@ public class DbConnect {
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/google?serverTimezone=UTC", "root", "");
             st = con.createStatement();
-            if (con != null) {
+            if (con != null)
                 System.out.println("Successfully connected to MySQL database test");
-            }
+            else
+                System.out.println("Cannot connect to MySQL database");
+
+            System.out.println(con);
         } catch (Exception ex)
         {
             ex.printStackTrace();
@@ -46,7 +49,7 @@ public class DbConnect {
             ResultSet rs;
             if(id<=0)
             {
-                System.out.println("Error id=-1");
+               // System.out.println("Error id=-1");
                 return "";
             }
             String query="SELECT url FROM google.urls WHERE id="+id+";";
@@ -92,6 +95,8 @@ public class DbConnect {
     public int findWord_inWord(String word)
     {
         try{
+            System.out.println(word);
+
             ResultSet rs;
             String query="SELECT id FROM google.words WHERE word='"+word+"';";
 
@@ -99,10 +104,12 @@ public class DbConnect {
 
             int value=0;
             //if (rs==null)return -1;
+
             while(rs.next())
             {
                 value=rs.getInt("id");
             }
+            System.out.println(value);
             return value;
         }
         catch (Exception e)
@@ -118,7 +125,7 @@ public class DbConnect {
             ResultSet rs;
             if(word<=0 || url<=0)
             {
-                System.out.println("Error id=-1");
+                //System.out.println("Error id=-1");
                 return -1;
             }
             String query="SELECT id FROM google.combined WHERE word_id="+word+" and url_id="+url+";";
@@ -144,7 +151,7 @@ public class DbConnect {
         try{
             if(word<=0)
             {
-                System.out.println("Error id=-1");
+                //System.out.println("Error id=-1");
                 return rs;
             }
             String query="SELECT * FROM google.combined WHERE word_id="+word+";";
@@ -194,6 +201,9 @@ public class DbConnect {
     {
         try {
             //insert if not available
+            if(src.isEmpty() || alt.isEmpty())
+                return 0;
+
             String query = "INSERT INTO google.images (url_id,src,alt) VALUES ("+url_id+",'"+src+"','"+alt+"');";
             st.executeUpdate(query);
 
@@ -211,7 +221,7 @@ public class DbConnect {
         try {
             if(id<=0)
             {
-                System.out.println("Error id=-1");
+               // System.out.println("Error id=-1");
                 return -1;
             }
                 String query = "UPDATE google.words SET count = count + 1 WHERE id="+id+";";
@@ -231,7 +241,7 @@ public class DbConnect {
             //insert if not available
             if(word_id<=0 || url_id<=0)
             {
-                System.out.println("Error id=-1");
+                //System.out.println("Error id=-1");
                 return -1;
             }
             String query = "INSERT INTO google.combined (url_id,word_id,importance,importance_index,num_of_occurrences) VALUES ("+url_id+","+word_id+","+i+","+j+","+1+");";
@@ -250,7 +260,7 @@ public class DbConnect {
         try {
             if(id<=0)
             {
-                System.out.println("Error id=-1");
+               // System.out.println("Error id=-1");
                 return -1;
             }
             //update if available
@@ -284,12 +294,69 @@ public class DbConnect {
 
     }
 
+    public int addQuery_query(String searchBox,String geographicalLocation)
+    {
+        try {
+            if(searchBox.isEmpty() || geographicalLocation.isEmpty())
+                return -1;
+
+                String query = "INSERT INTO google.queries (text,location) VALUES ('" + searchBox + "','"+geographicalLocation+"');";
+                st.executeUpdate(query);
+
+            return 1;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+
+    }
+
+    public int findQuery_inQueries(String text,String geo)
+    {
+        try{
+            ResultSet rs=null;
+            if(text.isEmpty() || geo.isEmpty())
+                return -1;
+
+            String query="SELECT * FROM google.queries WHERE text='"+text+"' and location='"+geo+"';";
+
+            rs=st.executeQuery(query);
+
+            if (rs!=null)return 1;
+           else return -1;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int updateQueryCount_inQuery(String text,String geo)
+    {
+        try {
+            if(text.isEmpty() || geo.isEmpty())
+                return -1;
+
+            String query = "UPDATE google.queries SET count = count + 1 WHERE text='"+text+"' and location='"+geo+"';";
+            st.executeUpdate(query);
+            return 1;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
     public int updatePopularity_inURL(int id,double pop)
     {
         try {
             if(id<=0)
             {
-                System.out.println("Error id=-1");
+               // System.out.println("Error id=-1");
                 return -1;
             }
             //update if available
@@ -309,7 +376,7 @@ public class DbConnect {
         try {
             if(id<=0)
             {
-                System.out.println("Error id=-1");
+               // System.out.println("Error id=-1");
                 return -1;
             }
             //update if available
@@ -329,7 +396,7 @@ public class DbConnect {
         try {
             if(id<=0)
             {
-                System.out.println("Error id=-1");
+               // System.out.println("Error id=-1");
                 return -1;
             }
             //update if available
@@ -400,12 +467,267 @@ public class DbConnect {
         }
     }
 
+    public void emptyQueriesTable()
+    {
+        try {
+
+            String query = "DELETE FROM google.queries";
+            st.executeUpdate(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+        }
+    }
+
     public void emptyDatabse()
     {
         emptyImagesTable();
         emptyCombinedTable();
         emptyUrlsTable();
         emptyWordsTable();
+        emptyQueriesTable();
+    }
+
+    public int resumeFALSE_inURL(int id)
+    {
+        try {
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            //update if available
+            String query = "UPDATE google.urls SET resume = false WHERE id="+id+";";
+            st.executeUpdate(query);
+            return id;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int resumeTRUE_inURL(int id)
+    {
+        try {
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            //update if available
+            String query = "UPDATE google.urls SET resume = true WHERE id="+id+";";
+            st.executeUpdate(query);
+            return id;
+        }
+        catch (Exception e)
+        {
+             System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int enterFALSE_inURL(int id)
+    {
+        try {
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            //update if available
+            String query = "UPDATE google.urls SET enter = false WHERE id="+id+";";
+            st.executeUpdate(query);
+            return id;
+        }
+        catch (Exception e)
+        {
+             System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int enterTRUE_inURL(int id)
+    {
+        try {
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            //update if available
+            String query = "UPDATE google.urls SET enter = true WHERE id="+id+";";
+            st.executeUpdate(query);
+            return id;
+        }
+        catch (Exception e)
+        {
+             System.out.println(e);
+            return -1;
+        }
+
+    }
+
+    public int getEnter_inURL(int id)
+    {
+
+        try{
+            ResultSet rs=null;
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+
+            String query="SELECT enter FROM google.urls WHERE id="+id+";";
+
+            rs=st.executeQuery(query);
+
+            int value=0;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                if(rs.getInt("enter")==1)
+                    value=1;
+                else
+                    value=0;
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int getMaxCount_inURL(int id)
+    {
+
+        try{
+            ResultSet rs=null;
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+
+            String query="SELECT max_count FROM google.urls WHERE id="+id+";";
+
+            rs=st.executeQuery(query);
+
+            int value=0;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                value=rs.getInt("max_count");
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int getResume_inURL(int id)
+    {
+        try{
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            ResultSet rs;
+            String query="SELECT resume FROM google.urls WHERE id="+id+";";
+
+            rs=st.executeQuery(query);
+
+            int value=0;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                if(rs.getBoolean("resume")==true)
+                    value=1;
+                else
+                    value=0;
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int updateMaxCount_inURLS(int id)
+    {
+        try {
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            //update if available
+            String query = "UPDATE google.urls SET max_count = max_count + 1 WHERE id="+id+";";
+            st.executeUpdate(query);
+            return id;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public ResultSet getURLSToResume()
+    {
+        ResultSet rs=null;
+        try{
+
+            String query="SELECT url FROM google.urls WHERE resume=1 ;";
+            return st.executeQuery(query);
+
+        }
+        catch (Exception e)
+        {
+             System.out.println(e);
+            return rs;
+        }
+    }
+
+
+    public ResultSet getImages(String word)
+    {
+        try{
+            String query="SELECT * FROM google.images WHERE alt LIKE '%"+word+"%';";
+            return st.executeQuery(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+
+    public int closeConnection()
+    {
+        try {
+            if (con != null) {
+                con.close();
+                System.out.println("Connection closed");
+            }
+            return 1;
+        } catch (SQLException se) {
+        }
+        return 0;
     }
 
 }

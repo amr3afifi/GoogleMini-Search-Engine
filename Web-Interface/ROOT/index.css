@@ -5,10 +5,51 @@
     src: url('../font/fontawesome-webfont.eot');
   }
 
+html{
+    overflow-x: hidden;
+    background-color:white;
+}
+
 h1{
     font-size: 24px;
     line-height: 1;
     color: #1a0dab;
+}
+
+h2{
+    font-size: 14px;
+    line-height: 1.4;
+    font-family: arial,sans-serif;
+    color: grey;
+}
+
+h3{
+    font-size: 12px;
+    line-height: 0;
+    font-family: arial,sans-serif;
+    color: grey;
+}
+
+i{
+    padding: 5px;
+}
+
+svg{
+    margin-top: 7px;
+    width:20px;
+    color: grey;
+}
+
+a{
+    font-family: arial,sans-serif;
+}
+
+p{
+    font-family: arial,sans-serif;
+    color: grey;
+    text-align: center;
+    font-size: 14px;
+    margin-left: -25px;
 }
 
 #message
@@ -28,83 +69,6 @@ h1{
     margin: 10px 0 10px 180px;
 }
 
-h2{
-    font-size: 14px;
-    line-height: 1.4;
-    font-family: arial,sans-serif;
-    color: grey;
-}
-
-h3{
-    font-size: 12px;
-    line-height: 0;
-    font-family: arial,sans-serif;
-    color: grey;
-}
-.result
-{
-    display: block;
-    margin: 10px 0 200px 180px;
-}
-
-.toolbar
-{
-    margin-left: 170px;
-    display: inline-flex;
-    
-}
-
-.toolbar h2
-{
-    padding: 10px;
-    font-size: 15px;
-
-}
-
-.toolbar h2:hover
-{
-color: black;
-cursor: pointer;
-}
-
-.component
-{
-   width: 700px;
-   margin-bottom: 40px;
-
- 
-}
-
-.searchbox2
-{
-    padding: 15px 15px;
-    
-    border-radius: 2pc;
-    color: #a0a0a0;
-    outline: none;
-    border: solid 1px #d4d4d4;
-    width: 500px;
-    margin: -60px 0 0 170px;
-    height: 15px;
-    
-}
-
-.searchbox2:hover
-{
-    box-shadow: rgb(194, 194, 194) 1px 1px 5px;
-}
-i{
-    padding: 5px;
-}
-.img2 
-{
-    width: 100px;
-    display: inline;
-    margin: 10px auto 0 15px;
-    align-self: center;
-  
-}
-
 .img1 
 {
     width: 400px;
@@ -112,6 +76,7 @@ i{
     align-self: center;
   
 }
+
 .searchbox
 {
     padding: 5px 15px;
@@ -129,11 +94,148 @@ i{
     box-shadow: rgb(194, 194, 194) 1px 1px 5px;
 }
 
-svg{
-    margin-top: 7px;
-    width:20px;
-    color: grey;
+.img2 
+{
+    width: 100px;
+    display: inline;
+    margin: 10px auto 0 15px;
+    align-self: center;
+  
 }
+
+.searchbox2
+{
+    padding: 15px 15px;
+    
+    border-radius: 2pc;
+    color: #a0a0a0;
+    outline: none;
+    border: solid 1px #d4d4d4;
+    width: 530px;
+    margin: -60px 0 0 170px;
+    height: 15px;
+    height:40px;
+    
+}
+
+.searchbox2:hover
+{
+    box-shadow: rgb(194, 194, 194) 1px 1px 5px;
+}
+
+.toolbar
+{
+    margin-left: 180px;
+    display: inline-flex;
+}
+
+.toolbar-item
+{
+    margin-right: 10px;
+    background-color: #4c8bf5;
+    border-color: #4c8bf5;
+    display: inline-flex;
+    margin-bottom: 20px;
+    
+}
+
+.toolbar-item:hover
+{
+    cursor: pointer;
+}
+
+#result-text
+{
+    display: block;
+    margin: 10px 0 0px 180px;
+}
+
+.component-text
+{
+   width: 700px;
+   margin-bottom: 40px;
+ 
+}
+
+#result-images
+{
+    display: none;
+    margin: 10px 0 0px 125px;
+    width: 100%;
+}
+
+.component-images
+{
+   width:400px;
+   padding: 50px 35px;
+   display: inline-block;
+ 
+}
+
+#result-trends
+{
+    display: none;
+    margin: 10px 0 0px 180px;
+   
+}
+
+#countries
+{
+    width: 510px;
+   margin: 5px 0 0 0px; 
+   display: inline-block;
+   position: absolute;
+   
+   
+}
+
+select
+{
+    border: none;
+}
+
+label
+{
+    color: black;
+    font-size: 18px;
+}
+
+h4{
+  color: black;
+  font-weight: bolder;
+  font-size: 18px;  
+  margin: 0;
+}
+
+h5{
+    padding: 15px 5px;
+    color: #4c8bf5 !important;
+  font-weight: bolder;
+  margin: 0 auto;;
+  font-size: 18px;  
+  }
+
+
+#rank
+{
+    width: 200px;
+   margin: 0px 0 0 550px; 
+   display: inline-block;
+   position: absolute;
+   margin-bottom: 50px;
+     
+}
+
+#histogram
+{
+    width: 500px;
+   margin: 0px 0 0 780px; 
+   display: inline-block;
+   position: absolute;
+   
+   
+}
+
 .input1{
     background-color: transparent;
     border: none;
@@ -146,8 +248,8 @@ svg{
     box-shadow: 2px grey;
     margin: 0px 0 0 8px;
     width: 430px;
-
 }
+
 .input2{
     background-color: transparent;
     border: none;
@@ -158,7 +260,6 @@ svg{
     box-shadow: 2px grey;
     margin: 0px 0 0 10px;
     width: 430px;
-
 }
 
 button
@@ -177,18 +278,6 @@ button
     text-align: center;
     cursor: pointer;
     user-select: none;
-}
-
-a{
-    font-family: arial,sans-serif;
-}
-
-p{
-    font-family: arial,sans-serif;
-    color: grey;
-    text-align: center;
-    font-size: 14px;
-    margin-left: -25px;
 }
 
 button:hover
@@ -213,27 +302,52 @@ button:hover
 .footer2
 {
   display: block;
-  position: absolute;
+  position: fixed;
   width: 100%;
-    background-color: transparent;
-}
-html{
-    overflow-x: hidden;
-    background-color:white;
+  background-color: transparent;
+  padding: 10px;
+  bottom: 0;
+  background-color: white;
+  
+  
 }
 
-#pagesBar{
-    font-size: 18px;
-    color: red;
-    text-align: left;
-    display: block;
-    margin: 10px 0 10px 180px;
+.footer-item
+{
+    padding: 10px;
 }
 
 .pageElement{
     padding-right: 10px;
     padding-left: 10px;
 }
+
+#pagination-wrapper-text {
+  
+    padding: 0 10px;
+    margin-bottom: 50px;
+    text-align: center;
+    width: 100%
+}
+
+#pagination-wrapper-images {
+  
+    padding: 0 10px;
+    margin-bottom: 50px;
+    text-align: center;
+    width: 100%
+}
+
+.controls-item {
+    display: inline-block;
+}
+
+.btn {
+    margin: 0 5px;
+    background-color: #4c8bf5;
+    border-color: #4c8bf5;
+}
+
 
 @media screen and (max-width:530px)
 {

@@ -1,5 +1,7 @@
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public class Crawler {
@@ -27,6 +29,23 @@ public class Crawler {
                  "https://www.bose.com/", "https://www.tesla.com/", "https://www.apple.com/", "https://www.wikipedia.org/", "https://www.nytimes.com/", "https://www.forbes.com/",
                 "https://www.netflix.com/"
         };
+
+        ResultSet rs=db.getURLSToResume();
+
+        if(rs!=null)
+        {
+            crawlSite cs;
+            int count = 0;
+            try {
+                while (rs.next())
+                {
+                    cs = new crawlSite();
+                    cs.threadEntered = false;
+                    cs.url = rs.getString("url");
+                    crawlerStartSeed.add(cs);
+                }
+            } catch (SQLException ex) { }
+        }
 
         for(int i=0;i<websites.length;i++)
         {
@@ -59,18 +78,77 @@ public class Crawler {
         }
     }
 
+    public void enterTRUE(String URL)
+    {
+        int id=db.findURL_inURL(URL);
+
+        if (id>0)
+            db.enterTRUE_inURL(id);
+    }
+
+    public void enterFALSE(String URL)
+    {
+        int id=db.findURL_inURL(URL);
+
+        if (id>0)
+            db.enterFALSE_inURL(id);
+    }
+
+    public void resumeTRUE(String URL)
+    {
+        int id=db.findURL_inURL(URL);
+
+        if (id>0)
+            db.resumeTRUE_inURL(id);
+    }
+
+    public void resumeFALSE(String URL)
+    {
+        int id=db.findURL_inURL(URL);
+
+        if (id>0)
+            db.resumeFALSE_inURL(id);
+    }
+
+    public boolean continueMaxCount(String URL)
+    {
+        int id=db.findURL_inURL(URL);
+        if(id<=0) return true;
+        int count=0;
+
+        if (id>0)
+            count=db.getMaxCount_inURL(id);
+
+
+        if(count<100 && count>=0)
+        {
+            incrementMaxCount(id);
+            return true;
+        }
+        else
+            return false;
+
+    }
+
+    public void incrementMaxCount(int id)
+    {
+        db.updateMaxCount_inURLS(id);
+    }
+
     public boolean addToVisitedLinks(String URL)
     {
-
+        if(URL=="" || URL==null)return false;
         if(!isVisited(URL))
         {
             URLsCount++;
             db.addURL_toURL(URL);
+            resumeTRUE(URL);
             return true;
 
         }
         return false;
     }
+
 
     public boolean addImage(String url, String src,String alt)
     {
@@ -234,7 +312,7 @@ public class Crawler {
     public boolean updateOutgoingLinks(String URL,int num)
     {
         int id=db.findURL_inURL(URL);
-        if(id<0)
+        if(id<=0)
             return false;
 
         db.updateOutgoing_inURL(id,num);

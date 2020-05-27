@@ -27,6 +27,9 @@
      Welcome to Tomcat
   </description>
 
+<welcome-file-list>
+        <welcome-file>homepage.html</welcome-file>
+    </welcome-file-list>
 <servlet>
 <servlet-name>NumbersHandler</servlet-name>
 <servlet-class>test</servlet-class>

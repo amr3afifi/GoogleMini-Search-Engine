@@ -1,5 +1,7 @@
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.Vector;
 
@@ -8,14 +10,16 @@ public class Indexer implements  Runnable {
 
 private DbConnect db;
 private Stemmer stemmer;
-int urlDbIndex;
+int urlDbIndex=-1;
 
 
 public Indexer (DbConnect db)
 {
     this.db=db;
     stemmer=new Stemmer();
-    this.urlDbIndex=db.getfirstURL_inURL();
+//    db.emptyCombinedTable();
+//    db.emptyImagesTable();
+//    db.emptyWordsTable();
 }
 
     public void run()
@@ -30,28 +34,58 @@ public Indexer (DbConnect db)
     {
         String Alltext[]=new String[]{};
         try{
-        if(!url.isEmpty()) {
+            if(!url.isEmpty()) {
 
-            Document doc = Jsoup.connect(url).get();
+                Document doc = Jsoup.connect(url).get();
 
-            //to get text in html code
-            String title = doc.title();
-            String h1 = doc.getElementsByTag("h1").text();
-            String h2 = doc.getElementsByTag("h2").text();
-            String h3 = doc.getElementsByTag("h3").text();
-            String h4 = doc.getElementsByTag("h4").text();
-            String h5 = doc.getElementsByTag("h5").text();
-            String h6 = doc.getElementsByTag("h6").text();
-            String p = doc.getElementsByTag("p").text();
-            String li = doc.getElementsByTag("li").text();
-            String th = doc.getElementsByTag("th").text();
-            String td = doc.getElementsByTag("td").text();
-            String span = doc.getElementsByTag("span").text();
-            String div = doc.getElementsByTag("div").text();
-            // Place all test in array:
-             Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, li, th, td,span,div};
+                //to get text in html code
+                String title = doc.title();
+                String h1 = doc.getElementsByTag("h1").text();
+                String h2 = doc.getElementsByTag("h2").text();
+                String h3 = doc.getElementsByTag("h3").text();
+                String h4 = doc.getElementsByTag("h4").text();
+                String h5 = doc.getElementsByTag("h5").text();
+                String h6 = doc.getElementsByTag("h6").text();
+                String p = doc.getElementsByTag("p").text();
+                String li = doc.getElementsByTag("li").text();
+                String th = doc.getElementsByTag("th").text();
+                String td = doc.getElementsByTag("td").text();
+                String span = doc.getElementsByTag("span").text();
+                String div = doc.getElementsByTag("div").text();
+                // Place all test in array:
+                Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, li, th, td,span,div};
 
-        }} catch (Exception e) {
+                Elements imagesOnPage = doc.select("img");
+                for (Element img : imagesOnPage)
+                {
+                    String src=img.attr("abs:src");
+                    String alt=img.attr("abs:alt");
+
+                    int last=alt.lastIndexOf("/");
+
+                    if(alt.length()>last)
+                        alt=alt.substring(last+1,alt.length());
+                    else
+                        alt=img.attr("abs:alt");
+
+                    alt.replace("'","");
+                    String[] splited = alt.split("[()+;$*=#,' ?.:!\"]+");
+                    String newalt="";
+
+                    for (int k=0;k<splited.length;k++)
+                    {
+                        String LowerWord= splited[k].toLowerCase();
+                        char[] stemArray = LowerWord.toCharArray();
+                        stemmer.add(stemArray, LowerWord.length());
+                        stemmer.stem();
+                        newalt+= stemmer.toString()+" ";
+                    }
+
+                    db.addImage_toImage(urlDbIndex,src,newalt);
+                }
+
+
+            }} catch (Exception e) {
             System.out.println(e);
         }
         return Alltext;
@@ -59,61 +93,73 @@ public Indexer (DbConnect db)
 
     public void parseDoc() {
         try {
-           String url=db.getURLByID_inURL(urlDbIndex);
+            if(urlDbIndex==-1)
+                urlDbIndex=db.getfirstURL_inURL();
 
-           int url_id=urlDbIndex;
-           if(url_id<=0)System.exit(1);
-               String Alltext[];
-               Alltext=getHTMLTags(url);
+            if(urlDbIndex==-1)
+                return;
 
-               Vector<String> wordsInSameDoc = new Vector();
-               String[] result;
-               // SPLIT TEXT TO WORDS:
-               for (int i = 0; i < Alltext.length; i++) {
-                   //check if tag exists:
+            String url=db.getURLByID_inURL(urlDbIndex);
 
-                   if (Alltext[i].isEmpty())
-                       continue;
+            int url_id=urlDbIndex;
 
-                   result = Alltext[i].split("[()+;$*=#, ?.:!\"]+");
-                   for (int j = 0; j < result.length; j++) {
+            if(url!="") {
+                if(db.getEnter_inURL(urlDbIndex)>0) {
 
-                       String LowerWord = result[j].toLowerCase();
-                       System.out.println(LowerWord);
-                       boolean arabicWord = isArabicWord(LowerWord);
-                       if(arabicWord)
-                           continue;
-                       boolean stoppingCheck = isStoppingWord(LowerWord);
-                       if (stoppingCheck)
-                           continue;
+                    String Alltext[];
+                    Alltext = getHTMLTags(url);
 
+                    Vector<String> wordsInSameDoc = new Vector();
+                    String[] result;
+                    // SPLIT TEXT TO WORDS:
+                    for (int i = 0; i < Alltext.length; i++) {
+                        //check if tag exists:
 
-                       char[] stemArray = LowerWord.toCharArray();
-                       stemmer.add(stemArray, LowerWord.length());
-                       stemmer.stem();
-                       String StemOutput = stemmer.toString();
-                       System.out.println(StemOutput);
-                       int word_id = db.findWord_inWord(StemOutput);
-                       int combined_id=db.findBoth_inCombined(word_id,url_id);
-                       if(word_id<=0)
-                       {word_id=db.addWord_toWord(StemOutput);}
-                       else
-                       {db.updateWordCount_inWord(word_id);}
+                        if (Alltext[i].isEmpty())
+                        { continue;}
 
-                       if(combined_id<=0)
-                       {
-                           combined_id=db.addInCombined(url_id,word_id,i,j);
-                       }
-                       else
-                       { db.updateCombined_numOfOccurences(combined_id); }
+                        result = Alltext[i].split("[()+;$*=#, ?.:!\"]+");
+                        for (int j = 0; j < result.length; j++) {
 
-                       if (!wordsInSameDoc.contains(StemOutput)) {
-                           wordsInSameDoc.add(StemOutput);
-                           db.updateWord_numOfDocs(StemOutput);
-                       }
-                   }
-               }
-               urlDbIndex++;
+                            String LowerWord = result[j].toLowerCase();
+
+                            if (isArabicWord(LowerWord))
+                            { continue;}
+
+                            if (isStoppingWord(LowerWord))
+                            { continue;}
+
+                            System.out.println(LowerWord);
+                            char[] stemArray = LowerWord.toCharArray();
+                            stemmer.add(stemArray, LowerWord.length());
+                            stemmer.stem();
+                            String StemOutput = stemmer.toString();
+
+                            int word_id = db.findWord_inWord(StemOutput);
+
+                            if (word_id <= 0) {
+                                word_id = db.addWord_toWord(StemOutput);
+                            } else {
+                                db.updateWordCount_inWord(word_id);
+                            }
+
+                            int combined_id = db.findBoth_inCombined(word_id, url_id);
+                            if (combined_id <= 0) {
+                                db.addInCombined(url_id, word_id, i, j);
+                            } else {
+                                db.updateCombined_numOfOccurences(combined_id);
+                            }
+
+                            if (!wordsInSameDoc.contains(StemOutput)) {
+                                wordsInSameDoc.add(StemOutput);
+                                db.updateWord_numOfDocs(StemOutput);
+                            }
+                        }
+                    }
+                }
+                urlDbIndex++;
+            }else
+                Thread.sleep(5000);
 
         } catch (Exception e) {
             System.out.println(e);
@@ -127,9 +173,10 @@ public Indexer (DbConnect db)
         int found=0;
         for(int i=0;i<stoppingWordArray.length;i++)
         {
-            if(stoppingWordArray[i]==input)
+            if(stoppingWordArray[i].equals(input))
             {found++;break;}
         }
+
         if(found>0)
             return true;
         else
