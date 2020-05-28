@@ -105,7 +105,7 @@ public Indexer (DbConnect db)
 
             if(url!="") {
                 if(db.getEnter_inURL(urlDbIndex)>0) {
-
+                    int DocWordCount=0;
                     String Alltext[];
                     Alltext = getHTMLTags(url);
 
@@ -117,8 +117,8 @@ public Indexer (DbConnect db)
 
                         if (Alltext[i].isEmpty())
                         { continue;}
-
                         result = Alltext[i].split("[()+;$*=#, ?.:!\"]+");
+
                         for (int j = 0; j < result.length; j++) {
 
                             String LowerWord = result[j].toLowerCase();
@@ -128,6 +128,7 @@ public Indexer (DbConnect db)
 
                             if (isStoppingWord(LowerWord))
                             { continue;}
+                            DocWordCount++;
 
                             System.out.println(LowerWord);
                             char[] stemArray = LowerWord.toCharArray();
@@ -143,12 +144,7 @@ public Indexer (DbConnect db)
                                 db.updateWordCount_inWord(word_id);
                             }
 
-                            int combined_id = db.findBoth_inCombined(word_id, url_id);
-                            if (combined_id <= 0) {
-                                db.addInCombined(url_id, word_id, i, j);
-                            } else {
-                                db.updateCombined_numOfOccurences(combined_id);
-                            }
+                            db.addInCombined(url_id, word_id, i, j);
 
                             if (!wordsInSameDoc.contains(StemOutput)) {
                                 wordsInSameDoc.add(StemOutput);
@@ -156,6 +152,7 @@ public Indexer (DbConnect db)
                             }
                         }
                     }
+                    db.updateWordCount_inURLS(url_id,DocWordCount);
                 }
                 urlDbIndex++;
             }else

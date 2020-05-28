@@ -119,7 +119,7 @@ public class DbConnect {
         }
     }
 
-    public int findBoth_inCombined(int word,int url)
+    public int getNumOfOccurrences_inCombined(int word,int url)
     {
         try{
             ResultSet rs;
@@ -128,13 +128,13 @@ public class DbConnect {
                 //System.out.println("Error id=-1");
                 return -1;
             }
-            String query="SELECT id FROM google.combined WHERE word_id="+word+" and url_id="+url+";";
+            String query="SELECT COUNT(*) FROM google.combined WHERE word_id="+word+" and url_id="+url+";";
             rs=st.executeQuery(query);
             int value=0;
            // if (rs==null)return -1;
             while(rs.next())
             {
-                value=rs.getInt("id");
+                value=rs.getInt(1);
             }
             return value;
         }
@@ -173,6 +173,23 @@ public class DbConnect {
                 st.executeUpdate(query);
 
             return id;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int updateWordCount_inURLS(int url_id,int num)
+    {
+        try {
+            if(url_id<=0 || num<=0)
+                return -1;
+
+            String query = "UPDATE google.urls SET word_count ="+num+" WHERE id="+url_id+";";
+            st.executeUpdate(query);
+            return 1;
         }
         catch (Exception e)
         {
@@ -244,29 +261,9 @@ public class DbConnect {
                 //System.out.println("Error id=-1");
                 return -1;
             }
-            String query = "INSERT INTO google.combined (url_id,word_id,importance,importance_index,num_of_occurrences) VALUES ("+url_id+","+word_id+","+i+","+j+","+1+");";
+            String query = "INSERT INTO google.combined (url_id,word_id,importance,importance_index) VALUES ("+url_id+","+word_id+","+i+","+j+");";
             st.executeUpdate(query);
-            return findBoth_inCombined(word_id,url_id);
-        }
-        catch (Exception e)
-        {
-            System.out.println(e);
-            return -1;
-        }
-    }
-
-    public int updateCombined_numOfOccurences(int id)
-    {
-        try {
-            if(id<=0)
-            {
-               // System.out.println("Error id=-1");
-                return -1;
-            }
-            //update if available
-            String query = "UPDATE google.combined SET num_of_occurrences = num_of_occurrences + 1 WHERE id="+id+";";
-            st.executeUpdate(query);
-            return id;
+            return 1;
         }
         catch (Exception e)
         {
@@ -655,6 +652,34 @@ public class DbConnect {
                     value=1;
                 else
                     value=0;
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int getWordCount_inURL(int id)
+    {
+        try{
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            ResultSet rs;
+            String query="SELECT word_count FROM google.urls WHERE id="+id+";";
+
+            rs=st.executeQuery(query);
+
+            int value=0;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                value=rs.getInt("word_count");
             }
             return value;
         }

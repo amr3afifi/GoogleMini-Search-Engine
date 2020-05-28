@@ -19,6 +19,7 @@ CREATE TABLE `google`.`urls` (
  `enter` BOOLEAN NOT NULL DEFAULT FALSE,
  `resume` BOOLEAN NOT NULL DEFAULT FALSE,
  `max_count` INT NOT NULL DEFAULT '0' ,
+ `word_count` INT NOT NULL DEFAULT '0' ,
  PRIMARY KEY (`id`)
  ) ENGINE = InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
@@ -63,7 +64,6 @@ CREATE TABLE `google`.`combined` (
  `word_id` INT NOT NULL ,
  `importance` INT NOT NULL ,
  `importance_index` INT NOT NULL ,
- `num_of_occurrences` INT NOT NULL ,
  PRIMARY KEY (`id`),
  KEY `url_id` (`url_id`),
   KEY `word_id` (`word_id`)

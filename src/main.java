@@ -27,10 +27,5 @@ public class main {
 //       // queryProcessor.ranker();
 //        queryProcessor.printVector();
 
-
-
-
-
-
     }
 }
