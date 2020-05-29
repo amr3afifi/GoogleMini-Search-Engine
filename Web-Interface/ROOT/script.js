@@ -1,18 +1,23 @@
+let myChart = document.getElementById('myChart').getContext('2d');
+Chart.defaults.global.defaultFontFamily = 'arial';
+Chart.defaults.global.defaultFontSize = 12;
+Chart.defaults.global.defaultFontColor = '#777';
+var stateText = {'querySet': "",'page': 0,'rows': 10,'window': 10}
+var stateImages = {'querySet': "",'page': 0,'rows': 20,'window': 10}
 
-var stateText = {
-    'querySet': "",
-    'page': 0,
-    'rows': 10,
-    'window': 10
-    }
-
-var stateImages = {
-    'querySet': "",
-    'page': 0,
-    'rows': 20,
-    'window': 10
-    }
-
+loadTrendsJson(0);
+function redrawChart(mylabels,mydatasets)
+{
+new Chart(myChart,{
+type:'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+data:{labels:mylabels,datasets:mydatasets},
+options:{
+layout:{ padding:{left:50,right:0,bottom:0,top:-10000},},
+tooltips:{enabled:true}
+}
+});
+}
+    
 if(document.getElementById('searchType').value=="text")
 {
     loadTextJson();
@@ -23,7 +28,14 @@ else
     loadImagesJson();
     console.log("images");
 }
-console.log(document.getElementById('searchType').value);
+
+function countryTrendChange()
+{
+    let val = document.getElementById('country').selectedIndex ;
+    console.log(val);
+    loadTrendsJson(val);
+}
+
 function loadTextJson()
 {
     const xhr= new XMLHttpRequest();
@@ -75,7 +87,89 @@ function loadImagesJson()
     xhr.send();
 }
 
+function loadTrendsJson(countryIndex)
+{
+    const xhr= new XMLHttpRequest();
+    xhr.open('get',"trends.json",true);
+    xhr.onload=function(){
+        if(this.status==200)
+        {
+            try{
+                var resObj= JSON.parse(this.responseText);
+                var table = $('#rank');
+                console.log(resObj[countryIndex].country);
+                console.log(resObj[countryIndex].trend_0_text);
+                console.log(resObj[countryIndex].trend_0_count);
+                var row=`<h4> Rank # </h4>`
+                table.empty();
+                table.append(row)
 
+                var mylabels=[];
+                var mydatasets=[{label:'Searches',data:[],borderWidth:1,borderColor:'#777',hoverBorderWidth:3,hoverBorderColor:'#000'}]
+                if(resObj!=null || resObj!=undefined)
+                {
+                mylabels.push(resObj[countryIndex].trend_0_text);
+                console.log(resObj[countryIndex].trend_0_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_0_count);
+                row=`<h5> 1. ${resObj[countryIndex].trend_0_text} - ${resObj[countryIndex].trend_0_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_1_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_1_count);
+                row=`<h5> 2. ${resObj[countryIndex].trend_1_text} - ${resObj[countryIndex].trend_1_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_2_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_2_count);
+                row=`<h5> 3. ${resObj[countryIndex].trend_2_text} - ${resObj[countryIndex].trend_2_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_3_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_3_count);
+                row=`<h5> 4. ${resObj[countryIndex].trend_3_text} - ${resObj[countryIndex].trend_3_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_4_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_4_count);
+                row=`<h5> 5. ${resObj[countryIndex].trend_4_text} - ${resObj[countryIndex].trend_4_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_5_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_5_count);
+                row=`<h5> 6. ${resObj[countryIndex].trend_5_text} - ${resObj[countryIndex].trend_5_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_6_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_6_count);
+                row=`<h5> 7. ${resObj[countryIndex].trend_6_text} - ${resObj[countryIndex].trend_6_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_7_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_7_count);
+                row=`<h5> 8. ${resObj[countryIndex].trend_7_text} - ${resObj[countryIndex].trend_7_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_8_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_8_count);
+                row=`<h5> 9. ${resObj[countryIndex].trend_8_text} - ${resObj[countryIndex].trend_8_count} </h5>`;
+                table.append(row);
+
+                mylabels.push(resObj[countryIndex].trend_9_text);
+                mydatasets[0].data.push(resObj[countryIndex].trend_9_count);
+                row=`<h5>10. ${resObj[countryIndex].trend_9_text} - ${resObj[countryIndex].trend_9_count} </h5>`
+                table.append(row);
+                }
+                console.log(mylabels);console.log( mydatasets[0].data);
+                redrawChart(mylabels,mydatasets); 
+            }
+            catch(e)
+            {
+                console.log('parse error');
+            }  
+        }else console.log('not 200');
+    }
+    xhr.send();
+}
 
 function paginationText(querySet, page, rows) 
 {

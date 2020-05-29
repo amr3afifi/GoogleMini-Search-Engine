@@ -175,7 +175,7 @@ p{
 #result-trends
 {
     display: none;
-    margin: 10px 0 0px 180px;
+    margin: 10px 0 0px 170px;
    
 }
 
@@ -208,8 +208,8 @@ h4{
 }
 
 h5{
-    padding: 15px 5px;
-    color: #4c8bf5 !important;
+  padding: 10px 5px;
+  color: #4c8bf5 !important;
   font-weight: bolder;
   margin: 0 auto;;
   font-size: 18px;  
@@ -218,8 +218,8 @@ h5{
 
 #rank
 {
-    width: 200px;
-   margin: 0px 0 0 550px; 
+    width: 500px;
+   margin: 100px 0 0 0px; 
    display: inline-block;
    position: absolute;
    margin-bottom: 50px;
@@ -228,12 +228,11 @@ h5{
 
 #histogram
 {
-    width: 500px;
-   margin: 0px 0 0 780px; 
+   width: 780px;
+   margin: 10px 0 0 525px; 
    display: inline-block;
    position: absolute;
-   
-   
+    
 }
 
 .input1{

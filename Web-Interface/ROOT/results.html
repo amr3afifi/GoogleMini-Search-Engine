@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<head>
 <link rel="icon" href="https://cdn2.iconfinder.com/data/icons/social-icons-33/128/Google-512.png">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <link rel="stylesheet" type="text/css" href="index.css">
 <title>Google</title>
 </head>
@@ -77,7 +78,7 @@
                 <option value="Congo, The Democratic Republic of The">Congo, The Democratic Republic of The</option>
                 <option value="Cook Islands">Cook Islands</option>
                 <option value="Costa Rica">Costa Rica</option>
-                <option value="Cote D'ivoire">Cote D'ivoire</option>
+                <option value="Cote D''ivoire">Cote D'ivoire</option>
                 <option value="Croatia">Croatia</option>
                 <option value="Cuba">Cuba</option>
                 <option value="Cyprus">Cyprus</option>
@@ -280,13 +281,15 @@
         <button type="submit" class="page btn-sm btn-info btn-danger" style="margin-left: 250px;height: 30px;" >Search</button>
     </form>
         <div id="result-text">
-            <div class="component-text">
-            <h3> www.google.com </h3>
-            <h1> Google </h1>
-            <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>
-            </div>
             
-                <div id="result-table-text"></div>     
+            
+                <div id="result-table-text">
+                    <div class="component-text">
+                        <h3> www.google.com </h3>
+                        <h1> Google </h1>
+                        <h2> Search the world's information, including webpages, images, videos and more. Google has many special features to help you find exactly what you're looking ... </h2>
+                        </div>
+                </div>     
                 <div id="pagination-wrapper-text"></div>
         </div>
 
@@ -305,7 +308,7 @@
 
         <div id="countries">
             <label for="country">Country</label><span style="color: red !important; display: inline; float: none;">*</span>      
-            <select id="country" name="country" class="form-control">
+            <select id="country" onChange="countryTrendChange()" name="country" class="form-control">
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Åland Islands">Åland Islands</option>
                 <option value="Albania">Albania</option>
@@ -359,7 +362,7 @@
                 <option value="Congo, The Democratic Republic of The">Congo, The Democratic Republic of The</option>
                 <option value="Cook Islands">Cook Islands</option>
                 <option value="Costa Rica">Costa Rica</option>
-                <option value="Cote D'ivoire">Cote D'ivoire</option>
+                <option value="Cote Divoire">Cote D'ivoire</option>
                 <option value="Croatia">Croatia</option>
                 <option value="Cuba">Cuba</option>
                 <option value="Cyprus">Cyprus</option>
@@ -567,6 +570,8 @@
 
         <div id="histogram">
             <h4>Histogram</h4>
+            <br><br><br><br><br>
+            <canvas id="myChart"></canvas>
             
         </div>
             
