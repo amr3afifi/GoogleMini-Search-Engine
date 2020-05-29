@@ -5,6 +5,38 @@ CREATE DATABASE IF NOT EXISTS `google` DEFAULT CHARACTER SET latin1 COLLATE lati
 USE `google`;
 
 
+--
+-- Table structure for table `images`
+--
+DROP TABLE IF EXISTS `images`;
+CREATE TABLE `google`.`images` (
+ `id` INT NOT NULL AUTO_INCREMENT ,
+ `url_id` INT NOT NULL ,
+ `src` TEXT NOT NULL,
+ `alt` TEXT ,
+ PRIMARY KEY (`id`),
+ KEY `url_id` (`url_id`)
+ ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
+-- --------------------------------------------------------
+
+
+--
+-- Table structure for table `combined`
+--
+DROP TABLE IF EXISTS `combined`;
+CREATE TABLE `google`.`combined` (
+ `id` INT NOT NULL AUTO_INCREMENT ,
+ `url_id` INT NOT NULL ,
+ `word_id` INT NOT NULL ,
+ `importance` INT NOT NULL ,
+ `importance_index` INT NOT NULL ,
+ PRIMARY KEY (`id`),
+ KEY `url_id` (`url_id`),
+  KEY `word_id` (`word_id`)
+ ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
+-- --------------------------------------------------------\
+
+
 -- --------------------------------------------------------
 --
 -- Table structure for table `urls`
@@ -18,6 +50,7 @@ CREATE TABLE `google`.`urls` (
  `in_going` INT NOT NULL DEFAULT '0' ,
  `enter` BOOLEAN NOT NULL DEFAULT FALSE,
  `resume` BOOLEAN NOT NULL DEFAULT FALSE,
+ `indexed` BOOLEAN NOT NULL DEFAULT FALSE,
  `max_count` INT NOT NULL DEFAULT '0' ,
  `word_count` INT NOT NULL DEFAULT '0' ,
  PRIMARY KEY (`id`)
@@ -38,37 +71,6 @@ CREATE TABLE `google`.`words` (
  ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
 -- --------------------------------------------------------
 
-
---
--- Table structure for table `images`
---
-DROP TABLE IF EXISTS `images`;
-CREATE TABLE `google`.`words` (
- `id` INT NOT NULL AUTO_INCREMENT ,
- `url_id` INT NOT NULL ,
- `src` TEXT NOT NULL,
- `alt` TEXT ,
- PRIMARY KEY (`id`),
- KEY `url_id` (`url_id`),
- ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
--- --------------------------------------------------------
-
-
---
--- Table structure for table `combined`
---
-DROP TABLE IF EXISTS `combined`;
-CREATE TABLE `google`.`combined` (
- `id` INT NOT NULL AUTO_INCREMENT ,
- `url_id` INT NOT NULL ,
- `word_id` INT NOT NULL ,
- `importance` INT NOT NULL ,
- `importance_index` INT NOT NULL ,
- PRIMARY KEY (`id`),
- KEY `url_id` (`url_id`),
-  KEY `word_id` (`word_id`)
- ) ENGINE = InnoDB AUTO_INCREMENT=1 ;
--- --------------------------------------------------------\
 
 -- --------------------------------------------------------
 --

@@ -40,6 +40,11 @@ public class QueryProcessor extends HttpServlet {
         String alt="";
     }
 
+    public class ResultTrend
+    {
+        int count=0;
+        String text="";
+    }
 
     private Stemmer stemmer;
     private DbConnect db;
@@ -294,6 +299,53 @@ public class QueryProcessor extends HttpServlet {
 
     }
 
+    public void createJSONTrends(String searchBox)
+    {
+        String[] countries = {"Afghanistan", "Aland Islands", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua And Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia And Herzegovina", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (keeling) Islands", "Colombia", "Comoros", "Congo", "Congo, The Democratic Republic Of The", "Cook Islands", "Costa Rica", "Cote Divoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-bissau", "Guyana", "Haiti", "Heard Island And Mcdonald Islands", "Holy See (Vatican City State)", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran, Islamic Republic Of", "Iraq", "Ireland", "Isle Of Man", "Italy", "Jamaica", "Japan", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, Democratic Peoples Republic Of", "Korea, Republic Of", "Kuwait", "Kyrgyzstan", "Lao Peoples Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Macedonia, The Former Yugoslav Republic Of", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia, Federated States Of", "Moldova, Republic Of", "Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands","Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Palestinian Territory, Occupied", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Helena", "Saint Kitts And Nevis", "Saint Lucia", "Saint Pierre And Miquelon", "Saint Vincent And The Grenadines", "Samoa", "San Marino", "Sao Tome And Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia And The South Sandwich Islands", "Spain", "Sri Lanka", "Sudan", "Suriname", "Svalbard And Jan Mayen", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan, Province Of China", "Tajikistan", "Tanzania, United Republic Of", "Thailand", "Timor-leste", "Togo", "Tokelau", "Tonga", "Trinidad And Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks And Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "United States Minor Outlying Islands", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Viet Nam", "Virgin Islands, British", "Virgin Islands, U.S.", "Wallis And Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe"};
+        JSONArray list=new JSONArray();
+
+        for (int i=0;i<countries.length;i++)
+        {
+            JSONObject obj=new JSONObject();
+            obj.put("country",countries[i]);
+            ResultSet rs=db.getTrends_inCountry(countries[i]);
+            Vector<ResultTrend> resultsTrends= new Vector<>();
+            ResultTrend result;
+        if(rs!=null) {
+            try {
+                while (rs.next()) {
+                    result = new ResultTrend();
+                    result.text = rs.getString("text");
+                    result.count = rs.getInt("count");
+                    resultsTrends.add(result);
+                }
+            } catch (SQLException ex) {
+            }
+        }
+
+            for(int j=0;j<10;j++)
+            {
+                if(j<resultsTrends.size())
+                {
+                    obj.put("trend_"+j+"_text",resultsTrends.get(j).text);
+                    obj.put("trend_"+j+"_count",resultsTrends.get(j).count);
+                }
+                else
+                {
+                    obj.put("trend_"+j+"_text","empty");
+                    obj.put("trend_"+j+"_count",0);
+                }
+            }
+            list.add(obj);
+        }
+
+        try(FileWriter file=new FileWriter("tomcat/webapps/ROOT/trends.json"))
+        {
+            file.write(list.toString());
+            file.flush();
+        }catch (IOException e) { e.printStackTrace(); }
+    }
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String searchBox = request.getParameter("searchBox");
@@ -303,7 +355,7 @@ public class QueryProcessor extends HttpServlet {
         String pageFooter="";
         String searchType=request.getParameter("searchType");
         System.out.println(searchType);
-        if(searchType.equals("text"))
+        if(searchType.equals("text") || searchType.equals("trends"))
         {
             searchDatabaseText(searchBox);
             //ranker();
@@ -318,7 +370,7 @@ public class QueryProcessor extends HttpServlet {
         }
 
         String pageHeader=insertPageHeader();
-        String pageBody=insertPageBody(searchBox);
+        String pageBody=insertPageBody(searchBox,geographicalLocation);
         String page=pageHeader+pageBody+pageFooter;
         response.getWriter().println(page);
 
@@ -326,7 +378,6 @@ public class QueryProcessor extends HttpServlet {
         {
             searchDatabaseImages(searchBox);
             createJSONImages(searchBox);
-
         }
         else if(searchType.equals("images"))
         {
@@ -341,17 +392,19 @@ public class QueryProcessor extends HttpServlet {
         else
             db.addQuery_query(searchBox,geographicalLocation);
 
+        createJSONTrends(searchBox);
     }
 
     public String insertPageHeader()
     {
         return "<!DOCTYPE html>\n" +
                 "<html lang=\"en\">\n" +
-                "\n" +
+                "<head>\n" +
                 "<link rel=\"icon\" href=\"https://cdn2.iconfinder.com/data/icons/social-icons-33/128/Google-512.png\">\n" +
                 "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css\">\n" +
                 "<link rel=\"stylesheet\" type=\"text/css\" href=\"index.css\">\n" +
                 "<title>Google</title>\n" +
+                "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js\"></script>"+
                 "</head>\n" +
                 "\n" +
                 "<body>\n" +
@@ -366,7 +419,7 @@ public class QueryProcessor extends HttpServlet {
     public String insertCountries()
     {
         return "                <option value=\"Afghanistan\">Afghanistan</option>\n" +
-                "                <option value=\"Åland Islands\">Åland Islands</option>\n" +
+                "                <option value=\"Aland Islands\">Aland Islands</option>\n" +
                 "                <option value=\"Albania\">Albania</option>\n" +
                 "                <option value=\"Algeria\">Algeria</option>\n" +
                 "                <option value=\"American Samoa\">American Samoa</option>\n" +
@@ -418,7 +471,7 @@ public class QueryProcessor extends HttpServlet {
                 "                <option value=\"Congo, The Democratic Republic of The\">Congo, The Democratic Republic of The</option>\n" +
                 "                <option value=\"Cook Islands\">Cook Islands</option>\n" +
                 "                <option value=\"Costa Rica\">Costa Rica</option>\n" +
-                "                <option value=\"Cote D'ivoire\">Cote D'ivoire</option>\n" +
+                "                <option value=\"Cote Divoire\">Cote D'ivoire</option>\n" +
                 "                <option value=\"Croatia\">Croatia</option>\n" +
                 "                <option value=\"Cuba\">Cuba</option>\n" +
                 "                <option value=\"Cyprus\">Cyprus</option>\n" +
@@ -479,11 +532,11 @@ public class QueryProcessor extends HttpServlet {
                 "                <option value=\"Kazakhstan\">Kazakhstan</option>\n" +
                 "                <option value=\"Kenya\">Kenya</option>\n" +
                 "                <option value=\"Kiribati\">Kiribati</option>\n" +
-                "                <option value=\"Korea, Democratic People's Republic of\">Korea, Democratic People's Republic of</option>\n" +
+                "                <option value=\"Korea, Democratic Peoples Republic of\">Korea, Democratic People's Republic of</option>\n" +
                 "                <option value=\"Korea, Republic of\">Korea, Republic of</option>\n" +
                 "                <option value=\"Kuwait\">Kuwait</option>\n" +
                 "                <option value=\"Kyrgyzstan\">Kyrgyzstan</option>\n" +
-                "                <option value=\"Lao People's Democratic Republic\">Lao People's Democratic Republic</option>\n" +
+                "                <option value=\"Lao Peoples Democratic Republic\">Lao People's Democratic Republic</option>\n" +
                 "                <option value=\"Latvia\">Latvia</option>\n" +
                 "                <option value=\"Lebanon\">Lebanon</option>\n" +
                 "                <option value=\"Lesotho\">Lesotho</option>\n" +
@@ -610,7 +663,7 @@ public class QueryProcessor extends HttpServlet {
                 "                <option value=\"Zimbabwe\">Zimbabwe</option>\n";
     }
 
-    public  String insertPageBody(String searchBox)
+    public  String insertPageBody(String searchBox,String geo)
     {
         String countries=insertCountries();
         return "            <form action=\"SearchRequest\" method=\"POST\" id=\"SearchRequest\"><input id=\"searchBox\" value='"+searchBox+"' required name=\"searchBox\" class=\"input2\" type=\"text\">\n" +
@@ -647,7 +700,7 @@ public class QueryProcessor extends HttpServlet {
                 "\n" +
                 "        <div id=\"countries\">\n" +
                 "            <label for=\"country\">Country</label><span style=\"color: red !important; display: inline; float: none;\">*</span>      \n" +
-                "            <select id=\"country\" name=\"country\" class=\"form-control\">\n" +
+                "            <select id=\"country\" onChange=\"countryTrendChange()\" name=\"country\" class=\"form-control\">\n" +
                 countries+
                 "            </select>\n" +
                 "        </div>\n" +
@@ -667,6 +720,8 @@ public class QueryProcessor extends HttpServlet {
                 "\n" +
                 "        <div id=\"histogram\">\n" +
                 "            <h4>Histogram</h4>\n" +
+                "<br><br><br><br><br>\n" +
+                "            <canvas id=\"myChart\"></canvas>"+
                 "            \n" +
                 "        </div>\n" +
                 "            \n" +
@@ -687,7 +742,8 @@ public class QueryProcessor extends HttpServlet {
                 "    <script src=\"./script.js\"></script>\n" +
                 "    <script src=\"./voice.js\"></script>\n" +
                 "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js\"></script>\n" +
-                "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js\"></script>\n";
+                "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js\"></script>\n"
+                +"<script>document.getElementById(\"geographicalLocation\").value='"+geo+"';</script>";
     }
 
     public String insertPageTextFooter()

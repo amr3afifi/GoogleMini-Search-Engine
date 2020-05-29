@@ -91,7 +91,6 @@ public class DbConnect {
         return value;
     }
 
-
     public int findWord_inWord(String word)
     {
         try{
@@ -159,6 +158,21 @@ public class DbConnect {
 
         }
         catch (Exception e)
+        {
+            System.out.println(e);
+            return rs;
+        }
+    }
+
+    public ResultSet getTrends_inCountry(String country)
+    {
+        ResultSet rs=null;
+        try{
+            String query="SELECT * FROM google.queries WHERE location='"+country+"' ORDER BY count DESC";
+            return st.executeQuery(query);
+        }
+
+          catch (Exception e)
         {
             System.out.println(e);
             return rs;
@@ -487,6 +501,59 @@ public class DbConnect {
         emptyQueriesTable();
     }
 
+    public int indexerThreadEntered_inURL(int id)
+    {
+        try {
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+            //update if available
+            String query = "UPDATE google.urls SET indexed = true WHERE id="+id+";";
+            st.executeUpdate(query);
+            return id;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int getIndexed_inURL(int id)
+    {
+
+        try{
+            ResultSet rs=null;
+            if(id<=0)
+            {
+                System.out.println("URL does not exist in database");
+                return -1;
+            }
+
+            String query="SELECT indexed FROM google.urls WHERE id="+id+";";
+
+            rs=st.executeQuery(query);
+
+            int value=-1;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                if(rs.getInt("indexed")==1)
+                    value=1;
+                else
+                    value=0;
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
     public int resumeFALSE_inURL(int id)
     {
         try {
@@ -726,7 +793,6 @@ public class DbConnect {
         }
     }
 
-
     public ResultSet getImages(String word)
     {
         try{
@@ -740,7 +806,6 @@ public class DbConnect {
             return null;
         }
     }
-
 
     public int closeConnection()
     {
