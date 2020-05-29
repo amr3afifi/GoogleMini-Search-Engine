@@ -1,5 +1,3 @@
-
-
 public class main {
 
     public static void main(String[] args)
@@ -20,13 +18,17 @@ public class main {
 
     //2.//To run the indexer
         //indexer.run();
-        indexer.addThread(3);
+        //indexer.addThread(3);
 
 
-        //QueryProcessor queryProcessor=new QueryProcessor();
+        QueryProcessor queryProcessor=new QueryProcessor();
 //        queryProcessor.searchDatabase("let");
 //       // queryProcessor.ranker();
 //        queryProcessor.printVector();
+        queryProcessor.getNamesFromTrends("my name is Amr Afifi Ali and he is my Abdo Mota");
+
+
+
 
     }
 }

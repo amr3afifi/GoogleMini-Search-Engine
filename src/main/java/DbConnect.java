@@ -305,13 +305,13 @@ public class DbConnect {
 
     }
 
-    public int addQuery_query(String searchBox,String geographicalLocation)
+    public int addQuery_query(String searchBox,String geographicalLocation,String name)
     {
         try {
             if(searchBox.isEmpty() || geographicalLocation.isEmpty())
                 return -1;
 
-                String query = "INSERT INTO google.queries (text,location) VALUES ('" + searchBox + "','"+geographicalLocation+"');";
+                String query = "INSERT INTO google.queries (text,location,name) VALUES ('" + searchBox + "','"+geographicalLocation+"','"+name+"');";
                 st.executeUpdate(query);
 
             return 1;
@@ -324,14 +324,14 @@ public class DbConnect {
 
     }
 
-    public int findQuery_inQueries(String text,String geo)
+    public int findQuery_inQueries(String text,String geo,String name)
     {
         try{
             ResultSet rs=null;
             if(text.isEmpty() || geo.isEmpty())
                 return -1;
 
-            String query="SELECT * FROM google.queries WHERE text='"+text+"' and location='"+geo+"';";
+            String query="SELECT * FROM google.queries WHERE name LIKE '%"+name+"%' and location='"+geo+"';";
 
             rs=st.executeQuery(query);
 
@@ -345,13 +345,13 @@ public class DbConnect {
         }
     }
 
-    public int updateQueryCount_inQuery(String text,String geo)
+    public int updateQueryCount_inQuery(String text,String geo,String name)
     {
         try {
             if(text.isEmpty() || geo.isEmpty())
                 return -1;
 
-            String query = "UPDATE google.queries SET count = count + 1 WHERE text='"+text+"' and location='"+geo+"';";
+            String query = "UPDATE google.queries SET count = count + 1 WHERE name LIKE '%"+name+"%' and location='"+geo+"';";
             st.executeUpdate(query);
             return 1;
         }

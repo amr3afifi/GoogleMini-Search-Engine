@@ -1,3 +1,8 @@
+import NameRecognizer.Pipeline;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -9,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Vector;
 
 public class QueryProcessor extends HttpServlet {
@@ -44,6 +50,7 @@ public class QueryProcessor extends HttpServlet {
     {
         int count=0;
         String text="";
+        String name="";
     }
 
     private Stemmer stemmer;
@@ -317,6 +324,7 @@ public class QueryProcessor extends HttpServlet {
                     result = new ResultTrend();
                     result.text = rs.getString("text");
                     result.count = rs.getInt("count");
+                    result.name = rs.getString("name");
                     resultsTrends.add(result);
                 }
             } catch (SQLException ex) {
@@ -327,7 +335,11 @@ public class QueryProcessor extends HttpServlet {
             {
                 if(j<resultsTrends.size())
                 {
-                    obj.put("trend_"+j+"_text",resultsTrends.get(j).text);
+                    if(resultsTrends.get(j).name!=null && resultsTrends.get(j).name!="" && resultsTrends.get(j).name!=" ")
+                        obj.put("trend_"+j+"_text",resultsTrends.get(j).name);
+                    else
+                        obj.put("trend_"+j+"_text",resultsTrends.get(j).text);
+
                     obj.put("trend_"+j+"_count",resultsTrends.get(j).count);
                 }
                 else
@@ -345,6 +357,42 @@ public class QueryProcessor extends HttpServlet {
             file.flush();
         }catch (IOException e) { e.printStackTrace(); }
     }
+
+    public String[] getNamesFromTrends(String searchBox)
+    {
+        StanfordCoreNLP stanfordCoreNLP= Pipeline.getPipeline();
+        CoreDocument coreDocument=new CoreDocument(searchBox);
+        stanfordCoreNLP.annotate(coreDocument);
+        List<CoreLabel> coreLabels=coreDocument.tokens();
+        String name="";int i=0;int j=0;boolean firsttime=true;
+        for (CoreLabel coreLabel: coreLabels)
+        {
+            i++;
+            String ner =coreLabel.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+            if(!ner.equals("O"))
+            {
+                System.out.println(i+" -  "+j);
+                if(firsttime)
+                {
+                    name += coreLabel.originalText();
+                    firsttime=false;
+                    continue;
+                }
+                if(i==j+1 || (i>=0 && j==0)) {
+                    name += " "+coreLabel.originalText();
+                }
+                else {
+                    name += "."+coreLabel.originalText();
+                }
+                j=i;
+            }
+        }
+        System.out.println(name);
+        String[]names=name.split("\\.");
+        return names;
+    }
+
+
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -386,12 +434,16 @@ public class QueryProcessor extends HttpServlet {
             createJSONText(searchBox);
         }
 
-        int exits=db.findQuery_inQueries(searchBox,geographicalLocation);
-        if(exits>0)
-            db.updateQueryCount_inQuery(searchBox,geographicalLocation);
-        else
-            db.addQuery_query(searchBox,geographicalLocation);
-
+       String[] names=getNamesFromTrends(searchBox);
+        for(int i=0;i<names.length;i++)
+        {
+            int exits=db.findQuery_inQueries(searchBox,geographicalLocation,names[i]);
+            if(exits>0)
+                db.updateQueryCount_inQuery(searchBox,geographicalLocation,names[i]);
+            else
+                db.addQuery_query(searchBox,geographicalLocation,names[i]);
+        }
+        
         createJSONTrends(searchBox);
     }
 

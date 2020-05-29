@@ -82,6 +82,7 @@ CREATE TABLE `google`.`queries` (
  `text` TEXT NOT NULL ,
  `location` VARCHAR(100) NOT NULL ,
  `count` INT DEFAULT 1 ,
+ `name` VARCHAR(100) ,
  PRIMARY KEY (`id`)
  ) ENGINE = InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
