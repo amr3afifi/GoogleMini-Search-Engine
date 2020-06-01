@@ -114,9 +114,9 @@ public class IndexerThread extends Thread  implements Runnable {
             urlDbIndex++;
 
             if(url!="") {
-                if(indexer.db.getEnter_inURL(urlDbIndex)>0 && takenByAThread==0) {
+                if(indexer.db.getEnter_inURL(url_id)>0 && takenByAThread==0) {
                     countIndexed++;
-                    System.out.println(Thread.currentThread().getName() + " Indexing a new link -> " + urlDbIndex);
+                    System.out.println(Thread.currentThread().getName() + " Indexing a new link -> " + url_id);
                     int DocWordCount=0;
                     String Alltext[];
                     Alltext = getHTMLTags(url);
@@ -154,6 +154,7 @@ public class IndexerThread extends Thread  implements Runnable {
                                 indexer.db.addInCombined(url_id, word_id, i, j);
                             }
 
+                            //if word was not found in this website before
                             if (!wordsInSameDoc.contains(StemOutput)) {
                                 wordsInSameDoc.add(StemOutput);
                                 synchronized (indexer)
@@ -163,7 +164,7 @@ public class IndexerThread extends Thread  implements Runnable {
                     }
                     indexer.db.updateWordCount_inURLS(url_id,DocWordCount);
                 }
-                urlDbIndex++;
+                //urlDbIndex++;
             }
 
         } catch (Exception e) {

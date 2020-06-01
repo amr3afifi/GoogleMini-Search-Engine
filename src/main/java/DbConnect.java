@@ -216,7 +216,7 @@ public class DbConnect {
     {
         try {
             //insert if not available
-                String query = "INSERT INTO google.words (word,count,num_of_docs_occurred) VALUES ('"+word+"',"+0+","+0+");";
+                String query = "INSERT INTO google.words (word,count,num_of_docs_occurred) VALUES ('"+word+"',"+1+","+0+");";
                 st.executeUpdate(query);
 
             return findWord_inWord(word);
@@ -305,13 +305,13 @@ public class DbConnect {
 
     }
 
-    public int addQuery_query(String searchBox,String geographicalLocation,String name)
+    public int addQuery_query(String searchBox,String geographicalLocation,String qname)
     {
         try {
             if(searchBox.isEmpty() || geographicalLocation.isEmpty())
                 return -1;
 
-                String query = "INSERT INTO google.queries (text,location,name) VALUES ('" + searchBox + "','"+geographicalLocation+"','"+name+"');";
+                String query = "INSERT INTO google.queries (text,location,name) VALUES ('" + searchBox + "','"+geographicalLocation+"','"+qname+"');";
                 st.executeUpdate(query);
 
             return 1;

@@ -62,7 +62,8 @@ public class QueryProcessor extends HttpServlet {
 
     public void searchDatabaseText(String searchBox)
     {
-        resultsText=new Vector<ResultText>();
+        resultsText=new Vector<>();
+        System.out.println("Step1");
         String[] words=searchBox.split("[()+;$*=#, ?.:!\"]+");
         int word_id=0;
         for(int i=0;i<words.length;i++)
@@ -72,28 +73,30 @@ public class QueryProcessor extends HttpServlet {
             stemmer.stem();
             words[i] = stemmer.toString();
 
-            System.out.println(words[i]);
+            System.out.println("Step2 "+words[i]);
 
             word_id=db.findWord_inWord(words[i]);
-            System.out.println(word_id);
+            System.out.println("Step3 "+word_id);
             if(word_id<=0)continue;
             ResultSet rs=db.getURLS_inCombined(word_id);
+            System.out.println("Step4 "+rs);
             if(rs==null)continue;
             ResultText result;
-            int count = 0;
+            int count=0;
             try {
                 while(rs.next())
                 {
                     result=new ResultText();
-                    count++;
                     result.id = rs.getInt("id");
+                    System.out.println("Step5 "+result.id);
+                    System.out.println("Stepzzzzz "+result.id);
                     result.word_id = rs.getInt("word_id");
                     result.url_id = rs.getInt("url_id");
                     result.i = rs.getInt("importance");
                     result.j = rs.getInt("importance_index");
-                    result.num = rs.getInt("num_of_occurrences");
                     resultsText.add(result);
                 }
+
             }catch (SQLException ex)
             {
 
@@ -242,12 +245,15 @@ public class QueryProcessor extends HttpServlet {
 
     public void createJSONText(String searchBox)
     {
-
-        JSONArray list=new JSONArray();
+        System.out.println("TEXT JSON");
+        System.out.println("size "+resultsText.size());
+        JSONArray list2=new JSONArray();
         for (int i=0;i<resultsText.size();i++)
         {
-            JSONObject obj=new JSONObject();
+            System.out.println("Step1 "+resultsText.get(i).num);
+            JSONObject obj2=new JSONObject();
             int url_id=resultsText.get(i).url_id;
+            System.out.println("Step2 "+url_id);
             String url=db.getURLByID_inURL(url_id);
             int indexWWW=-1;int indexCOM=-1;
             indexWWW=url.indexOf("www.");
@@ -257,18 +263,19 @@ public class QueryProcessor extends HttpServlet {
                 mainsite=url.substring(indexWWW+4,indexCOM);
 
             mainsite.toUpperCase();
+            System.out.println("Step3 "+url);
             System.out.println(url);
             System.out.println(mainsite);
              url.replace("\\","");
-            obj.put("url",url);
-            obj.put("mainsite",mainsite);
-            list.add(obj);
+            obj2.put("url",url);
+            obj2.put("mainsite",mainsite);
+            list2.add(obj2);
         }
 
-        try(FileWriter file=new FileWriter("tomcat/webapps/ROOT/"+searchBox+"_text.json"))
+        try(FileWriter file2=new FileWriter("tomcat/webapps/ROOT/"+searchBox+"_text.json"))
         {
-            file.write(list.toString());
-            file.flush();
+            file2.write(list2.toString());
+            file2.flush();
         }catch (IOException e)
         {
             e.printStackTrace();
@@ -434,16 +441,18 @@ public class QueryProcessor extends HttpServlet {
             createJSONText(searchBox);
         }
 
-       String[] names=getNamesFromTrends(searchBox);
-        for(int i=0;i<names.length;i++)
-        {
-            int exits=db.findQuery_inQueries(searchBox,geographicalLocation,names[i]);
-            if(exits>0)
-                db.updateQueryCount_inQuery(searchBox,geographicalLocation,names[i]);
-            else
-                db.addQuery_query(searchBox,geographicalLocation,names[i]);
-        }
-        
+//       String[] names=getNamesFromTrends(searchBox);
+//        for(int i=0;i<names.length;i++)
+//        {
+//            int exits=db.findQuery_inQueries(searchBox,geographicalLocation,names[i]);
+//            System.out.println("exists = "+exits);
+//            if(exits>0)
+//                System.out.println("update = "+db.updateQueryCount_inQuery(searchBox,geographicalLocation,names[i]));
+//            else
+//                System.out.println("add = "+db.addQuery_query(searchBox,geographicalLocation,names[i]));
+//
+//        }
+
         createJSONTrends(searchBox);
     }
 
