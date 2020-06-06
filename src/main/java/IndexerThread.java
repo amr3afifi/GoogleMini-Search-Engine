@@ -9,7 +9,7 @@ public class IndexerThread extends Thread  implements Runnable {
 
     private Indexer indexer;
     private Stemmer stemmer;
-    int urlDbIndex=-1;
+    int urlDbIndex=27952;
     int countWaits=0;
     int countIndexed=0;
 
@@ -44,13 +44,13 @@ public class IndexerThread extends Thread  implements Runnable {
                 String h5 = doc.getElementsByTag("h5").text();
                 String h6 = doc.getElementsByTag("h6").text();
                 String p = doc.getElementsByTag("p").text();
-                String li = doc.getElementsByTag("li").text();
-                String th = doc.getElementsByTag("th").text();
-                String td = doc.getElementsByTag("td").text();
-               // String span = doc.getElementsByTag("span").text();
-               // String div = doc.getElementsByTag("div").text();
+//                String li = doc.getElementsByTag("li").text();
+//                String th = doc.getElementsByTag("th").text();
+//                String td = doc.getElementsByTag("td").text();
+                String body = doc.getElementsByTag("body").text();
+
                 // Place all test in array:
-                Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, li, th, td};
+                Alltext = new String[]{title, h1, h2, h3, h4, h5, h6, p, body};
 
                 Elements imagesOnPage = doc.select("img");
                 for (Element img : imagesOnPage)
@@ -80,7 +80,6 @@ public class IndexerThread extends Thread  implements Runnable {
 
                     indexer.db.addImage_toImage(urlDbIndex,src,newalt);
                 }
-
 
             }} catch (Exception e) {
             System.out.println(e);
@@ -124,6 +123,7 @@ public class IndexerThread extends Thread  implements Runnable {
                     Vector<String> wordsInSameDoc = new Vector();
                     String[] result;
                     // SPLIT TEXT TO WORDS:
+                    int sehelyJ=0;
                     for (int i = 0; i < Alltext.length; i++) {
                         //check if tag exists:
 
@@ -141,6 +141,8 @@ public class IndexerThread extends Thread  implements Runnable {
                             if (isStoppingWord(LowerWord))
                             { continue;}
                             DocWordCount++;
+if(url_id==23015)
+    System.out.println(DocWordCount);
 
                             char[] stemArray = LowerWord.toCharArray();
                             stemmer.add(stemArray, LowerWord.length());
@@ -151,9 +153,9 @@ public class IndexerThread extends Thread  implements Runnable {
                             int word_id = indexer.db.findWord_inWord(StemOutput);
                                 if (word_id <= 0) { word_id = indexer.db.addWord_toWord(StemOutput); }
                                 else { indexer.db.updateWordCount_inWord(word_id); }
-                                indexer.db.addInCombined(url_id, word_id, i, j);
+                                indexer.db.addInCombined(url_id, word_id, i, sehelyJ);
                             }
-
+                            sehelyJ++;
                             //if word was not found in this website before
                             if (!wordsInSameDoc.contains(StemOutput)) {
                                 wordsInSameDoc.add(StemOutput);
@@ -162,6 +164,7 @@ public class IndexerThread extends Thread  implements Runnable {
                             }
                         }
                     }
+                    System.out.println("Finished Website= "+url+" with wordCount= "+DocWordCount);
                     indexer.db.updateWordCount_inURLS(url_id,DocWordCount);
                 }
                 //urlDbIndex++;
@@ -169,6 +172,7 @@ public class IndexerThread extends Thread  implements Runnable {
 
         } catch (Exception e) {
             System.out.println(e);
+            e.printStackTrace();
         }
 
     }

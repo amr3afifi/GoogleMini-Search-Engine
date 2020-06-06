@@ -7,7 +7,7 @@ public class DbConnect {
     public DbConnect() {
 
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/google?serverTimezone=UTC", "root", "");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/google?serverTimezone=UTC&jdbcCompliantTruncation=false&zeroDateTimeBehavior=convertToNull&characterEncoding=UTF-8", "root", "");
             st = con.createStatement();
             if (con != null)
                 System.out.println("Successfully connected to MySQL database test");
@@ -69,6 +69,32 @@ public class DbConnect {
         }
     }
 
+    public String getWordByID_inWord(int id)
+    {
+        try{
+            ResultSet rs;
+            if(id<=0)
+            {
+                // System.out.println("Error id=-1");
+                return "";
+            }
+            String query="SELECT word FROM google.words WHERE id="+id+";";
+            rs=st.executeQuery(query);
+            if(rs==null)return "";
+            String value="";
+            while(rs.next())
+            {
+                value=rs.getString("word");
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return "";
+        }
+    }
+
     public int getfirstURL_inURL()
     {
         int value=-1;
@@ -94,8 +120,6 @@ public class DbConnect {
     public int findWord_inWord(String word)
     {
         try{
-            System.out.println(word);
-
             ResultSet rs;
             String query="SELECT id FROM google.words WHERE word='"+word+"';";
 
@@ -108,7 +132,6 @@ public class DbConnect {
             {
                 value=rs.getInt("id");
             }
-            System.out.println(value);
             return value;
         }
         catch (Exception e)
@@ -286,12 +309,12 @@ public class DbConnect {
         }
     }
 
-    public int addURL_toURL(String url)
+    public int addURL_toURL(String url,long date,String country)
     {
         try {
             int id=findURL_inURL(url);
             if(id<=0) {
-                String query = "INSERT INTO google.urls (url,popularity,out_going,in_going) VALUES ('" + url + "'," + 0.0 + ","+0+","+0+");";
+                String query = "INSERT INTO google.urls (url,popularity,out_going,in_going,date,country) VALUES ('" + url + "'," + 0.0 + ","+0+","+0+","+date+",'"+country+"');";
                 st.executeUpdate(query);
             }
 
@@ -311,7 +334,7 @@ public class DbConnect {
             if(searchBox.isEmpty() || geographicalLocation.isEmpty())
                 return -1;
 
-                String query = "INSERT INTO google.queries (text,location,name) VALUES ('" + searchBox + "','"+geographicalLocation+"','"+qname+"');";
+                String query = "INSERT INTO google.queries (query,location,name) VALUES ('" + searchBox + "','"+geographicalLocation+"','"+qname+"');";
                 st.executeUpdate(query);
 
             return 1;
@@ -331,12 +354,19 @@ public class DbConnect {
             if(text.isEmpty() || geo.isEmpty())
                 return -1;
 
-            String query="SELECT * FROM google.queries WHERE name LIKE '%"+name+"%' and location='"+geo+"';";
+//          String query="SELECT * FROM google.queries WHERE name LIKE '%"+name+"%' and location='"+geo+"';";
 
+            String query="SELECT * FROM google.queries WHERE query LIKE '%"+text+"%' and location='"+geo+"';";
             rs=st.executeQuery(query);
 
-            if (rs!=null)return 1;
-           else return -1;
+            int value=0;
+            // if (rs==null)return -1;
+            while(rs.next())
+            {
+                value=rs.getInt("count");
+            }
+            return value;
+
         }
         catch (Exception e)
         {
@@ -351,7 +381,8 @@ public class DbConnect {
             if(text.isEmpty() || geo.isEmpty())
                 return -1;
 
-            String query = "UPDATE google.queries SET count = count + 1 WHERE name LIKE '%"+name+"%' and location='"+geo+"';";
+           // String query = "UPDATE google.queries SET count = count + 1 WHERE name LIKE '%"+name+"%' and location='"+geo+"';";
+            String query = "UPDATE google.queries SET count = count + 1 WHERE query LIKE '%"+text+"%' and location='"+geo+"';";
             st.executeUpdate(query);
             return 1;
         }
@@ -793,6 +824,22 @@ public class DbConnect {
         }
     }
 
+    public ResultSet getInGoingAndOutgoing(int id)
+    {
+        ResultSet rs=null;
+        try{
+
+            String query="SELECT * FROM google.urls WHERE id="+id+";";
+            return st.executeQuery(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return rs;
+        }
+    }
+
     public ResultSet getImages(String word)
     {
         try{
@@ -804,6 +851,33 @@ public class DbConnect {
         {
             System.out.println(e);
             return null;
+        }
+    }
+
+    public ResultSet getAllUrls()
+    {
+        try{
+            String query="SELECT * FROM google.urls ORDER BY popularity DESC";
+            return st.executeQuery(query);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    public void setIndexedToFalse()
+    {
+        try {
+
+            String query = "UPDATE urls SET indexed=false;";
+            st.executeUpdate(query);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
         }
     }
 
@@ -819,5 +893,111 @@ public class DbConnect {
         }
         return 0;
     }
+
+    public int addDocument_ToDoc(String doc)
+    {
+        try {
+            if(doc==null ||doc=="")return -1;
+
+            String query = "INSERT INTO google.documents (document) VALUES ('"+doc+"');";
+            st.executeUpdate(query);
+
+            return findDoc_inDocs(doc);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+
+    }
+
+    public int findURL_inDOCURL(int id)
+    {
+        try{
+            ResultSet rs;
+            String query="SELECT * FROM doc_url WHERE url_id="+id+";";
+            rs=st.executeQuery(query);
+            int value=0;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                    value=rs.getInt("doc_id");
+            }
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public int findDoc_inDocs(String doc)
+    {
+        try{
+            ResultSet rs;
+            String query="SELECT id FROM google.documents WHERE document='"+doc+"';";
+            rs=st.executeQuery(query);
+
+            int value=0;
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                    value=rs.getInt("id");
+            }
+
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
+    public String getDoc_BYID(int doc)
+    {
+        try{
+            ResultSet rs;
+            String query="SELECT document FROM google.documents WHERE id="+doc+";";
+            rs=st.executeQuery(query);
+
+            String value="";
+            //if (rs==null)return -1;
+            while(rs.next())
+            {
+                value=rs.getString("document");
+            }
+
+            return value;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return "";
+        }
+    }
+
+    public int addInDoc_URL(int url,int doc)
+    {
+        try {
+            //insert if not available
+            if(url<=0 || doc<=0)
+            {
+                //System.out.println("Error id=-1");
+                return -1;
+            }
+            String query = "INSERT INTO google.doc_url (url_id,doc_id) VALUES ("+url+","+doc+");";
+            st.executeUpdate(query);
+            return 1;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return -1;
+        }
+    }
+
 
 }

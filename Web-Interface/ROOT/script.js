@@ -6,6 +6,32 @@ var stateText = {'querySet': "",'page': 0,'rows': 10,'window': 10}
 var stateImages = {'querySet': "",'page': 0,'rows': 20,'window': 10}
 
 loadTrendsJson(0);
+console.log("ready?");  
+$(document).ready(function(){
+    console.log("ready?");  
+    $('#searchBox').keyup(function(){  
+         var query = $(this).val();  
+         if(query != '')  
+         {  
+             console.log(query);
+              $.ajax({  
+                   url:"autocomplete.php",  
+                   method:"POST",  
+                   data:{query:query},  
+                   success:function(data)  
+                   {  
+                        $('#searchList').fadeIn();  
+                        $('#searchList').html(data);  
+                   }  
+              });  
+         }  
+    });  
+    $(document).on('click', 'li', function(){  
+         $('#searchBox').val($(this).text());  
+         $('#searchList').fadeOut();  
+    });  
+});  
+
 function redrawChart(mylabels,mydatasets)
 {
 new Chart(myChart,{
@@ -303,12 +329,12 @@ var table = $('#result-table-text')
 var data = paginationText(querySet,page,rows)
 var myList = data.querySet
 table.empty();
+
 for (var i = 1 in myList) {
-    
     var row=`<div class="component">
-    <h3> ${myList[i].url} </h3>
+    <h3 style="color:#3cba54;"> ${myList[i].url} </h3>
     <a href="${myList[i].url}"><h1> ${myList[i].mainsite}</h1></a>
-    <h2> website info..bio..description..</h2>
+    <h2>${myList[i].snippet}</h2>
     </div>`
     table.append(row)
 }

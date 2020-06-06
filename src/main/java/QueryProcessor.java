@@ -243,32 +243,77 @@ public class QueryProcessor extends HttpServlet {
         sortImportance();
     }
 
-    public void createJSONText(String searchBox)
-    {
+    public void createJSONText(String searchBox) throws IOException {
         System.out.println("TEXT JSON");
         System.out.println("size "+resultsText.size());
         JSONArray list2=new JSONArray();
         for (int i=0;i<resultsText.size();i++)
         {
-            System.out.println("Step1 "+resultsText.get(i).num);
             JSONObject obj2=new JSONObject();
             int url_id=resultsText.get(i).url_id;
-            System.out.println("Step2 "+url_id);
             String url=db.getURLByID_inURL(url_id);
-            int indexWWW=-1;int indexCOM=-1;
-            indexWWW=url.indexOf("www.");
-            indexCOM=url.lastIndexOf(".");
-            String mainsite=url;
-            if(indexCOM>indexWWW)
-                mainsite=url.substring(indexWWW+4,indexCOM);
+            System.out.println("URL ID= "+url_id+" URL= "+url);
+            url.replace("\\","");
 
-            mainsite.toUpperCase();
-            System.out.println("Step3 "+url);
-            System.out.println(url);
-            System.out.println(mainsite);
-             url.replace("\\","");
+            int doc_id=db.findURL_inDOCURL(url_id);
+            String doc=db.getDoc_BYID(doc_id);
+            String word=db.getWordByID_inWord(resultsText.get(i).word_id);
+
+            int index=-1;
+            System.out.println("Doc Length= "+doc.length());
+            index=doc.indexOf(word);
+            System.out.println("Word= "+word+" Index Word= "+index);
+            if(index<0 || index>doc.length())
+                continue;
+
+            int titleIndex=doc.indexOf("=|=");
+            int firstStop=0;
+            int lastStop=0;String title="";
+
+            if(titleIndex+3<doc.length()) {
+                if(titleIndex>0)
+                    title=doc.substring(0,titleIndex);
+                doc = doc.substring(titleIndex + 3, doc.length());
+            }
+            System.out.println("Title= "+title+" Title ind= "+titleIndex);
+
+            if(doc.length()<=7 || index<0)
+                doc="You can find more details that can help you about "+word+" in the following...";
+            else
+            {
+                if(index>100)
+                    //firstStop=index-100;
+                    firstStop=doc.indexOf(" ",index-100);
+                else
+                    firstStop=index;
+
+                if((index+100)>doc.length())
+                    lastStop=doc.length();
+                else
+                    lastStop=doc.indexOf(" ",index+100);
+
+                System.out.println("first stop= "+firstStop);
+                System.out.println("last stop= "+lastStop);
+
+                if(firstStop<0 || lastStop<0 || lastStop>doc.length() || firstStop>doc.length())
+                    continue;
+                doc=doc.substring(firstStop,lastStop);
+            }
+
+          if(title.isEmpty())
+          {
+              int indexWWW=-1;int indexCOM=-1;
+              indexWWW=url.indexOf("www.");
+              indexCOM=url.lastIndexOf(".");
+              title=url;
+              if(indexCOM>indexWWW)
+                  title=url.substring(indexWWW+4,indexCOM);
+          }
+             title.toUpperCase();
+
             obj2.put("url",url);
-            obj2.put("mainsite",mainsite);
+            obj2.put("mainsite",title);
+            obj2.put("snippet",doc+"...");
             list2.add(obj2);
         }
 
@@ -329,7 +374,7 @@ public class QueryProcessor extends HttpServlet {
             try {
                 while (rs.next()) {
                     result = new ResultTrend();
-                    result.text = rs.getString("text");
+                    result.text = rs.getString("query");
                     result.count = rs.getInt("count");
                     result.name = rs.getString("name");
                     resultsTrends.add(result);
@@ -342,7 +387,8 @@ public class QueryProcessor extends HttpServlet {
             {
                 if(j<resultsTrends.size())
                 {
-                    if(resultsTrends.get(j).name!=null && resultsTrends.get(j).name!="" && resultsTrends.get(j).name!=" ")
+                    System.out.println("NAME= "+resultsTrends.get(j).name);
+                    if(!resultsTrends.get(j).name.isEmpty() && resultsTrends.get(j).name!="" && resultsTrends.get(j).name!=" ")
                         obj.put("trend_"+j+"_text",resultsTrends.get(j).name);
                     else
                         obj.put("trend_"+j+"_text",resultsTrends.get(j).text);
@@ -441,17 +487,19 @@ public class QueryProcessor extends HttpServlet {
             createJSONText(searchBox);
         }
 
-//       String[] names=getNamesFromTrends(searchBox);
+//        String[] names=getNamesFromTrends(searchBox);
+        String[]names={""};
 //        for(int i=0;i<names.length;i++)
 //        {
-//            int exits=db.findQuery_inQueries(searchBox,geographicalLocation,names[i]);
-//            System.out.println("exists = "+exits);
-//            if(exits>0)
-//                System.out.println("update = "+db.updateQueryCount_inQuery(searchBox,geographicalLocation,names[i]));
-//            else
-//                System.out.println("add = "+db.addQuery_query(searchBox,geographicalLocation,names[i]));
-//
+            int exits=db.findQuery_inQueries(searchBox,geographicalLocation,names[0]);
+            System.out.println("exists = "+exits);
+            if(exits>0)
+                System.out.println("update = "+db.updateQueryCount_inQuery(searchBox,geographicalLocation,names[0]));
+            else
+                System.out.println("add = "+db.addQuery_query(searchBox,geographicalLocation,names[0]));
+
 //        }
+
 
         createJSONTrends(searchBox);
     }

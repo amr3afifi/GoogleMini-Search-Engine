@@ -27,7 +27,7 @@ h3{
     font-size: 12px;
     line-height: 0;
     font-family: arial,sans-serif;
-    color: grey;
+    color: #3cba54;
 }
 
 i{
@@ -169,6 +169,7 @@ p{
    width:400px;
    padding: 50px 35px;
    display: inline-block;
+   max-height: 800px;
  
 }
 
@@ -214,6 +215,22 @@ h5{
   margin: 0 auto;;
   font-size: 18px;  
   }
+
+h6
+{
+    padding: 5px 0;
+    color: #4c8bf5 !important; 
+    font-size: 13px; 
+    margin: 0; 
+    }
+
+    ul{  
+        background-color: grey;  
+        cursor:pointer;  
+   }  
+   li{  
+        padding:12px;  
+   }  
 
 
 #rank
@@ -296,6 +313,16 @@ button:hover
     width:300px;
 
     margin:0px auto 30px auto;
+}
+
+.footer
+{
+  display: block;
+  position: fixed;
+  width: 100%;
+  background-color: transparent;
+  bottom: 0;
+  
 }
 
 .footer2

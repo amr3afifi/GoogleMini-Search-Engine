@@ -99,5 +99,7 @@
     <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-core:2.3.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-impl:2.4.0-b180830.0438" level="project" />
     <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:models:4.0.0" level="project" />
+    <orderEntry type="library" name="location" level="project" />
+    <orderEntry type="library" name="geoip2-2.13.1-sources" level="project" />
   </component>
 </module>

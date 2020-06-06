@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+    
 <style>
     .M6hT6 {
         left: 0;
@@ -183,10 +184,11 @@
             <img src="./search.png" style="width:22px;margin-top:6px;" alt="search image" >
            <input id="searchBox" name="searchBox" required class="input1" type="text">
            
+           
            <!-- <i class="fas fa-microphone"></i>     -->
            <img id="voiceSearch" src="./mic.png" style="width:16px;margin-top:2px;" alt="mic image" >
            <input type="text" id="searchType" name="searchType" value="text" style="visibility: hidden;"/>
-           
+           <div id="searchList"></div>  
              
         </div>
         <div id='message'></div>
@@ -199,7 +201,7 @@
         </div>
     
         <p>Google offered in</p>
-            <select id="geographicalLocation" name="geographicalLocation" style="
+            <select id="geographicalLocation" onchange="countryTrendChange2()" name="geographicalLocation" style="
             width: 310px;
             margin: 15px 0 0 38px;
             height: 25px;
@@ -449,8 +451,25 @@
                 <option value="Zambia">Zambia</option>
                 <option value="Zimbabwe">Zimbabwe</option>
             </select>
+        
         </form>
+        
+        <div id="trends" style="display: inline-flex;margin-left: 50px;margin-top: 20px;">
+            
+            <br>
+            
+            <div id="trends-left" style="margin-top: 30px;">
+            </div>
+
+            <div id="trends-right" style="position: absolute;margin-left: 200px;margin-top: 30px;">
+                
+            </div>
+            <p style="margin-left:30px"> Trending Now </p>
+
+
+        </div>
     </div>
+    
     
 
     <div class="footer">
@@ -487,7 +506,112 @@
             </div>
         </div>
     </div>
+    <script src="./script.js"></script>
+    <script src="./jQuery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script> 
+    
+    <script>
+
+//     $(document).ready(function(){ 
+//     $('#searchBox').keyup(function(){  
+//          var query = $(this).val(); 
+//          if(query != '')  
+//          {  
+//              console.log(query);
+//               $.ajax({  
+//                    url:"autocomplete.php",  
+//                    method:"POST",  
+//                    data:{query:query},  
+//                    success:function(data)  
+//                    {  
+//                         $('#searchList').fadeIn();  
+//                         $('#searchList').html(data);  
+//                         console.log(data);
+//                    }  
+//               });  
+//          }  
+//     });  
+//     $(document).on('click', 'li', function(){  
+//          $('#searchBox').val($(this).text());  
+//          $('#searchList').fadeOut();  
+//     });  
+// });  
+        loadTrendsJson2(document.getElementById('geographicalLocation').selectedIndex);
+
+        function countryTrendChange2()
+{
+    let val = document.getElementById('geographicalLocation').selectedIndex ;
+    console.log(val);
+    loadTrendsJson2(val);
+}
+        function loadTrendsJson2(countryIndex)
+{
+    const xhr= new XMLHttpRequest();
+    xhr.open('get',"trends.json",true);
+    xhr.onload=function(){
+        if(this.status==200)
+        {
+            try{
+                var resObj= JSON.parse(this.responseText);
+                var Left = $('#trends-left');
+                var Right = $('#trends-right');
+                var c = $('#trends');
+                console.log(Left);
+                console.log(resObj[countryIndex].country);
+                console.log(resObj[countryIndex].trend_0_text);
+                console.log(resObj[countryIndex].trend_0_count);
+                
+                
+                Left.empty();
+                Right.empty();
+                
+            
+
+                if(resObj!=null || resObj!=undefined)
+                {
+                row=`<h6> 1. ${resObj[countryIndex].trend_0_text} - ${resObj[countryIndex].trend_0_count} </h6>`;
+                Left.append(row);
+
+                row=`<h6> 2. ${resObj[countryIndex].trend_1_text} - ${resObj[countryIndex].trend_1_count} </h6>`;
+                Left.append(row);
+
+                row=`<h6> 3. ${resObj[countryIndex].trend_2_text} - ${resObj[countryIndex].trend_2_count} </h6>`;
+                Left.append(row);
+
+                row=`<h6> 4. ${resObj[countryIndex].trend_3_text} - ${resObj[countryIndex].trend_3_count} </h6>`;
+                Left.append(row);
+
+                row=`<h6> 5. ${resObj[countryIndex].trend_4_text} - ${resObj[countryIndex].trend_4_count} </h6>`;
+                Left.append(row);
+
+                row=`<h6> 6. ${resObj[countryIndex].trend_5_text} - ${resObj[countryIndex].trend_5_count} </h6>`;
+                Right.append(row);
+
+                row=`<h6> 7. ${resObj[countryIndex].trend_6_text} - ${resObj[countryIndex].trend_6_count} </h6>`;
+                Right.append(row);
+                
+                row=`<h6> 8. ${resObj[countryIndex].trend_7_text} - ${resObj[countryIndex].trend_7_count} </h6>`;
+                Right.append(row);
+                
+                row=`<h6> 9. ${resObj[countryIndex].trend_8_text} - ${resObj[countryIndex].trend_8_count} </h6>`;
+                Right.append(row);
+
+                row=`<h6>10. ${resObj[countryIndex].trend_9_text} - ${resObj[countryIndex].trend_9_count} </h6>`
+                Right.append(row);
+                }   
+            }
+            catch(e)
+            {
+                console.log('parse error');
+            }  
+        }else console.log('not 200');
+    }
+    xhr.send();
+}
+    </script>
     <script src="./voice.js"></script>
+    
 </body>
 
 </html>

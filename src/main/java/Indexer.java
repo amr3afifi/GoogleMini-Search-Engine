@@ -10,6 +10,7 @@ public Indexer (DbConnect db)
 //    db.emptyCombinedTable();
 //    db.emptyImagesTable();
 //    db.emptyWordsTable();
+//    db.setIndexedToFalse();
 }
 
     public void addThread()
