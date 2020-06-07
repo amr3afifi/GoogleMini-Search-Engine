@@ -37,7 +37,7 @@
 
 <servlet>
 <servlet-name>SearchHandler</servlet-name>
-<servlet-class>QueryProcessor</servlet-class>
+<servlet-class>QueryHandler</servlet-class>
 </servlet>
 
 <servlet-mapping>

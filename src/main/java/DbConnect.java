@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.Vector;
 
 public class DbConnect {
     private Connection con;
@@ -996,6 +997,169 @@ public class DbConnect {
         {
             System.out.println(e);
             return -1;
+        }
+    }
+
+    public int GetNumberOfURLS()
+    {
+        String query = "SELECT COUNT(*) AS rowcount FROM google.urls;";
+        try {
+
+            ResultSet rs = st.executeQuery(query);
+            int count = -1;
+            while(rs.next())
+                count = rs.getInt("rowcount");
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public ResultSet GetURLsByWords(Vector<WordStruct> wordsIDs)
+    {
+        StringBuilder condition= new StringBuilder();
+
+        for (int i=0; i<wordsIDs.size(); i++)
+        {
+            condition.append(" word_id=");
+            condition.append(wordsIDs.get(i).id);
+            if (i!=wordsIDs.size()-1)
+                condition.append(" OR");
+
+        }
+
+        String query = "SELECT * FROM google.combined WHERE"+condition.toString()+" ORDER BY url_id,importance,importance_index;";
+        try
+        {
+            return st.executeQuery(query);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    public ResultSet GetImagesByWords(Vector<String> words)
+    {
+        StringBuilder condition= new StringBuilder();
+
+        for (int i=0; i<words.size(); i++)
+        {
+            condition.append(" alt LIKE ");
+            condition.append("'%"+words.get(i)+"%'");
+            if (i!=words.size()-1)
+                condition.append(" OR");
+
+        }
+
+        String query = "SELECT * FROM google.images WHERE"+condition.toString()+";";
+
+        try
+        {
+            return st.executeQuery(query);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ResultSet GetEssentialURLInfoById(int urlid)
+    {
+        String query = "SELECT url, in_going, out_going, word_count, date, country FROM google.urls WHERE id="+urlid+";"; //add geographic location and date to the query
+
+        try {
+            return st.executeQuery(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String GetWordByWordID(int wordID)
+    {
+        String query = "SELECT word FROM google.words WHERE id="+wordID+";";
+        try {
+            ResultSet rs = st.executeQuery(query);
+            while(rs.next())
+            {
+                return rs.getString("word");
+            }
+            return "";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    public String GetSnippetFromResult(Result toBeSnipped)
+    {
+        ResultSet rs;
+        String query = "SELECT word_id FROM google.combined WHERE url_id="+toBeSnipped.url_id+" AND importance="+toBeSnipped.i+";";
+        try {
+            rs=st.executeQuery(query);
+            StringBuilder snippet = new StringBuilder();
+            Vector<Integer> wordsIDs = new Vector<Integer>();
+            int wordsAdded = 0;
+            boolean wordReached = false;
+            while (rs.next() && wordsAdded<5)
+            {
+                wordsAdded++;
+                wordsIDs.add(rs.getInt("word_id"));
+                if (rs.getInt("word_id")==toBeSnipped.word_id)
+                {
+                    wordReached=true;
+                    break;
+                }
+            }
+
+            while(rs.next() && wordsAdded<11)
+            {
+                if(!wordReached)
+                {
+                    wordsIDs.remove(0);
+                    wordsAdded--;
+                }
+
+                wordsIDs.add(rs.getInt("word_id"));
+                wordsAdded++;
+                if(rs.getInt("word_id")==toBeSnipped.word_id) wordReached=true;
+
+            }
+
+            for (Integer wordsID : wordsIDs) {
+                snippet.append(GetWordByWordID(wordsID));
+                snippet.append(" ");
+            }
+
+            return snippet.toString();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    public WordStruct GetWordStructFromString(String word)
+    {
+        ResultSet rs;
+        String query = "SELECT id, num_of_docs_occurred FROM google.words WHERE word='"+word+"';";
+        try {
+            rs=st.executeQuery(query);
+            WordStruct desiredValue=null;
+            while(rs.next())
+            {
+                desiredValue = new WordStruct(rs.getInt("id"),rs.getInt("num_of_docs_occurred"));
+
+            }
+            return desiredValue;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

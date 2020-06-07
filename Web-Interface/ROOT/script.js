@@ -6,31 +6,32 @@ var stateText = {'querySet': "",'page': 0,'rows': 10,'window': 10}
 var stateImages = {'querySet': "",'page': 0,'rows': 20,'window': 10}
 
 loadTrendsJson(0);
-console.log("ready?");  
-$(document).ready(function(){
-    console.log("ready?");  
-    $('#searchBox').keyup(function(){  
-         var query = $(this).val();  
-         if(query != '')  
-         {  
-             console.log(query);
-              $.ajax({  
-                   url:"autocomplete.php",  
-                   method:"POST",  
-                   data:{query:query},  
-                   success:function(data)  
-                   {  
-                        $('#searchList').fadeIn();  
-                        $('#searchList').html(data);  
-                   }  
-              });  
-         }  
-    });  
-    $(document).on('click', 'li', function(){  
-         $('#searchBox').val($(this).text());  
-         $('#searchList').fadeOut();  
-    });  
-});  
+
+// console.log("ready?");  
+// $(document).ready(function(){
+//     console.log("ready?");  
+//     $('#searchBox').keyup(function(){  
+//          var query = $(this).val();  
+//          if(query != '')  
+//          {  
+//              console.log(query);
+//               $.ajax({  
+//                    url:"autocomplete.php",  
+//                    method:"POST",  
+//                    data:{query:query},  
+//                    success:function(data)  
+//                    {  
+//                         $('#searchList').fadeIn();  
+//                         $('#searchList').html(data);  
+//                    }  
+//               });  
+//          }  
+//     });  
+//     $(document).on('click', 'li', function(){  
+//          $('#searchBox').val($(this).text());  
+//          $('#searchList').fadeOut();  
+//     });  
+// });  
 
 function redrawChart(mylabels,mydatasets)
 {
@@ -66,7 +67,11 @@ function loadTextJson()
 {
     const xhr= new XMLHttpRequest();
     var jsonName=document.getElementById('searchBox').value;
-    xhr.open('get',jsonName+"_text.json",true);
+    console.log(jsonName);
+    var p=document.getElementById('phrase').value;
+    var country=document.getElementById('geographicalLocation').value;
+    console.log(country);
+    xhr.open('get',jsonName+"_"+country+p+"_text.json",true);
     xhr.onload=function(){
    
         if(this.status==200)
@@ -92,7 +97,9 @@ function loadImagesJson()
 {
     const xhr= new XMLHttpRequest();
     var jsonName=document.getElementById('searchBox').value;
-    xhr.open('get',jsonName+"_images.json",true);
+    var p=document.getElementById('phrase').value;
+    var country=document.getElementById('geographicalLocation').value;
+    xhr.open('get',jsonName+"_"+country+p+"_images.json",true);
     xhr.onload=function(){
         if(this.status==200)
         {
@@ -116,6 +123,7 @@ function loadImagesJson()
 function loadTrendsJson(countryIndex)
 {
     const xhr= new XMLHttpRequest();
+    var country=document.getElementById('geographicalLocation').value;
     xhr.open('get',"trends.json",true);
     xhr.onload=function(){
         if(this.status==200)
